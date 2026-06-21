@@ -1,6 +1,6 @@
 import "server-only";
 
-import { cert, getApps, initializeApp, type App } from "firebase-admin/app";
+import { applicationDefault, cert, getApps, initializeApp, type App } from "firebase-admin/app";
 import { getAuth, type DecodedIdToken } from "firebase-admin/auth";
 import { getFirestore, type Firestore } from "firebase-admin/firestore";
 import { getStorage } from "firebase-admin/storage";
@@ -17,19 +17,28 @@ export function getFirebaseAdminApp(): App {
   const projectId = process.env.FIREBASE_PROJECT_ID ?? process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
   const privateKey = normalizePrivateKey(process.env.FIREBASE_PRIVATE_KEY);
+  const storageBucket = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET;
 
-  if (!projectId || !clientEmail || !privateKey) {
-    throw new Error("Missing Firebase Admin environment variables.");
+  // 本機 / 自管環境：使用明確的 service account 金鑰。
+  if (projectId && clientEmail && privateKey) {
+    return initializeApp({
+      credential: cert({ projectId, clientEmail, privateKey }),
+      storageBucket,
+    });
   }
 
-  return initializeApp({
-    credential: cert({
+  // 雲端執行環境（App Hosting / Cloud Run）：使用執行身分的 Application Default Credentials。
+  if (projectId) {
+    return initializeApp({
+      credential: applicationDefault(),
       projectId,
-      clientEmail,
-      privateKey,
-    }),
-    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  });
+      storageBucket,
+    });
+  }
+
+  throw new Error(
+    "Missing Firebase Admin credentials. Set FIREBASE_CLIENT_EMAIL/FIREBASE_PRIVATE_KEY, or run with Application Default Credentials.",
+  );
 }
 
 export function getAdminAuth() {
