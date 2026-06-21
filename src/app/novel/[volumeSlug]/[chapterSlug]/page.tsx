@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { TrackEvent } from "@/components/analytics/track-event";
 import { ChapterReader } from "@/components/novel/chapter-reader";
 import { JsonLd } from "@/components/seo/json-ld";
+import { getCharacter } from "@/data/characters";
 import { chapters, getAdjacentChapters, getChapter } from "@/data/novel";
 import { absoluteUrl, createPageMetadata } from "@/lib/seo";
 import { isValidSlug } from "@/lib/validation";
@@ -62,10 +64,23 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
   }
 
   const { previous, next } = getAdjacentChapters(chapter.id);
+  // 付費章節在 server 端清空正文，僅保留 excerpt/previewText 等安全短欄位。
   const safeChapter = chapter.isFree ? chapter : { ...chapter, content: [] };
+  const lockInfo = chapter.isFree
+    ? undefined
+    : {
+        appearingCharacters: (chapter.appearingCharacterSlugs ?? [])
+          .map((slug) => {
+            const character = getCharacter(slug);
+            return character ? { slug: character.slug, name: character.name } : null;
+          })
+          .filter((entry): entry is { slug: string; name: string } => Boolean(entry)),
+        keyLore: chapter.keyLore ?? [],
+      };
 
   return (
     <>
+      <TrackEvent event="chapter_view" targetType="chapter" targetId={chapter.id} />
       <JsonLd
         data={{
           "@context": "https://schema.org",
@@ -82,7 +97,7 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
           isAccessibleForFree: chapter.isFree,
         }}
       />
-      <ChapterReader chapter={safeChapter} previous={previous} next={next} />
+      <ChapterReader chapter={safeChapter} previous={previous} next={next} lockInfo={lockInfo} />
     </>
   );
 }

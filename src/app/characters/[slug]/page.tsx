@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { TrackEvent } from "@/components/analytics/track-event";
 import { FavoriteButton } from "@/components/account/favorite-button";
 import { Badge } from "@/components/common/badge";
 import { DivineButton } from "@/components/common/divine-button";
@@ -69,6 +70,7 @@ export default async function CharacterPage({ params }: CharacterPageProps) {
 
   return (
     <div className="site-container py-10 sm:py-14">
+      <TrackEvent event="character_view" targetType="character" targetId={character.slug} />
       <JsonLd
         data={{
           "@context": "https://schema.org",

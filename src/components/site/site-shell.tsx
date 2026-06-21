@@ -5,6 +5,7 @@ import { BackToTopButton } from "@/components/layout/back-to-top-button";
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
 import { PageTransition } from "@/components/layout/page-transition";
+import { SiteCampaigns } from "@/components/site/site-campaigns";
 
 type SiteShellProps = {
   children: ReactNode;
@@ -16,6 +17,7 @@ export function SiteShell({ children }: SiteShellProps) {
       <AnimatedBackground />
       <div className="relative z-10 flex min-h-screen flex-col">
         <Header />
+        <SiteCampaigns />
         <main className="flex-1">
           <PageTransition>{children}</PageTransition>
         </main>

@@ -13,6 +13,23 @@ export type ProductCategory =
 
 export type ProductType = "ebook" | "bundle" | "artbook" | "setting" | "wallpaper" | "sticker" | "poster" | "postcard" | "physical_reserved";
 
+/** 電子書銷售頁的進階內容（全選填，僅電子書類商品需要）。 */
+export type EbookProductExtra = {
+  tagline?: string;
+  authorPreface?: string;
+  introduction?: string;
+  includedChapters?: string[];
+  previewChapterIds?: string[];
+  bonusItems?: string[];
+  fileFormats: ("PDF" | "EPUB" | "MOBI")[];
+  pageCount?: number;
+  wordCount?: number;
+  previewImages?: string[];
+  licenseDescription: string;
+  faq?: { question: string; answer: string }[];
+  recommendedProductSlugs?: string[];
+};
+
 export type ShopProduct = {
   id: string;
   slug: string;
@@ -36,6 +53,7 @@ export type ShopProduct = {
   tags: string[];
   relatedCharacters: string[];
   relatedChapters: string[];
+  ebook?: EbookProductExtra;
   createdAt: string;
   updatedAt: string;
 };
@@ -78,6 +96,42 @@ export const shopProducts: ShopProduct[] = [
     tags: ["第一卷", "神榜", "免費篇延伸"],
     relatedCharacters: ["tianhun", "tianyun", "jinyao"],
     relatedChapters: ["ch-001", "ch-008"],
+    ebook: {
+      tagline: "天位神榜墜落的那一夜，七界命運重新洗牌。",
+      authorPreface:
+        "《神榜裂痕》是整個七界宇宙的起點。我想寫的不是一個被神選中的英雄，而是當神權本身開始崩壞時，凡人與神魔如何各自選擇站立的位置。這一卷收錄了免費連載的開篇，並補上大量設定與作者導讀，獻給願意走進這個世界的你。",
+      introduction:
+        "黃金神殿鐘聲碎裂，天位神榜第一次寫下不可讀的名字。天魂胸口的黑金魔印甦醒，天芸在天幻神殿聽見上古三大上神的最後警告。第一卷完整收錄神榜裂痕篇，附封印陣草圖與神榜位階導讀。",
+      includedChapters: [
+        "天位神榜墜落之夜",
+        "深淵魔印甦醒",
+        "夢幻之女入殿",
+        "九尊會審",
+        "蒼瀾古王的密詔",
+        "星界第七門",
+        "黃金裁決令",
+        "最後天命的影子",
+      ],
+      previewChapterIds: ["ch-001", "ch-003"],
+      bonusItems: [
+        "封印陣高解析草圖（PNG）",
+        "神榜裂痕篇設定導讀 PDF",
+        "天位神榜位階對照表",
+        "作者手寫世界觀筆記掃描",
+      ],
+      fileFormats: ["EPUB", "PDF"],
+      pageCount: 268,
+      wordCount: 82000,
+      previewImages: ["/placeholder/ebook-1-preview-a.jpg", "/placeholder/ebook-1-preview-b.jpg", "/placeholder/ebook-1-preview-c.jpg"],
+      licenseDescription:
+        "本電子書授權限個人閱讀與收藏，不得轉售、公開散布、上傳至任何平台、用於 AI 模型訓練或商業印製。",
+      faq: [
+        { question: "購買後如何下載？", answer: "付款完成後可於『會員中心 → 我的下載』取得受控下載連結，支援多次下載。" },
+        { question: "支援哪些裝置？", answer: "EPUB 適用主流電子書閱讀器與手機 App，PDF 適合電腦與平板閱讀。" },
+        { question: "免費章節已經看過，還值得買嗎？", answer: "電子書補上設定導讀、封印陣草圖與作者筆記，並提供離線收藏與更舒適的排版。" },
+      ],
+      recommendedProductSlugs: ["tianhun-character-setting", "character-mobile-wallpaper-pack"],
+    },
     createdAt: "2026-06-01",
     updatedAt: "2026-06-20",
   },
@@ -104,6 +158,27 @@ export const shopProducts: ShopProduct[] = [
     tags: ["第二卷", "七界", "預購"],
     relatedCharacters: ["tianhun", "liuli", "canglan"],
     relatedChapters: ["ch-009", "ch-014"],
+    ebook: {
+      tagline: "七界霸主降臨，星界七門全面開啟。",
+      authorPreface:
+        "第二卷把舞台從神殿拉向整個七界。當霸主們被迫表態，凡界古王國重新立誓，故事的格局正式展開。這一卷是我寫得最暢快的篇章，也埋下了通往最後天命的關鍵伏筆。",
+      introduction:
+        "七界王座同時發出回音，深淵王冠出現裂縫，天界四神收到互相矛盾的神諭。第二卷收錄七界王座篇章節，附七界王座彩頁設定與角色關係補充筆記。",
+      includedChapters: ["七界王座初鳴", "深淵王冠的裂縫", "天界四神的背誓", "夢印照見神墓", "凡界古盟重啟", "七界霸主降臨"],
+      previewChapterIds: ["ch-006"],
+      bonusItems: ["七界王座彩頁設定（PNG）", "星界七門規則設定 PDF", "角色關係補充筆記"],
+      fileFormats: ["EPUB", "PDF"],
+      pageCount: 312,
+      wordCount: 104000,
+      previewImages: ["/placeholder/ebook-2-preview-a.jpg", "/placeholder/ebook-2-preview-b.jpg"],
+      licenseDescription:
+        "本電子書授權限個人閱讀與收藏，不得轉售、公開散布、上傳至任何平台、用於 AI 模型訓練或商業印製。",
+      faq: [
+        { question: "第二卷可以單獨閱讀嗎？", answer: "建議先閱讀第一卷免費章節掌握世界觀，第二卷會延續神榜裂痕的伏筆。" },
+        { question: "是否包含彩頁？", answer: "電子書內含七界王座彩頁設定與角色關係筆記。" },
+      ],
+      recommendedProductSlugs: ["seven-realms-worldbook", "character-desktop-wallpaper-pack"],
+    },
     createdAt: "2026-06-12",
     updatedAt: "2026-06-20",
   },

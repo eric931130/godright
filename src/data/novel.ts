@@ -21,6 +21,10 @@ export type Chapter = {
   readingTime: string;
   tags: string[];
   authorNote: string;
+  // 付費章節鎖定頁用的安全短欄位（非正文，可送至 client）。
+  previewText?: string;
+  appearingCharacterSlugs?: string[];
+  keyLore?: string[];
 };
 
 export type NovelCatalog = {
@@ -294,6 +298,12 @@ export const chapters: Chapter[] = [
       readingTime: `${16 + (index % 5)} 分鐘`,
       tags: ["付費章節", volumes[volumeIndex].title, index < 6 ? "七界王座" : "最後天命"],
       authorNote: "這是付費章節 mock，正式上線後會由會員權限與購買紀錄決定是否解鎖。",
+      previewText: `${title}——當神紋封印鬆動，七界的秩序再次傾斜。精彩片段僅供試閱，完整內容需解鎖後閱讀。`,
+      appearingCharacterSlugs: (() => {
+        const pool = ["tianhun", "tianyun", "jinyao", "liuli", "canglan", "shenhuan", "moyuan", "wuya"];
+        return [pool[index % pool.length], pool[(index + 3) % pool.length]];
+      })(),
+      keyLore: index < 6 ? ["七界王座", "星界七門"] : ["上古封印", "最後天命"],
     } satisfies Chapter;
   }),
 ];

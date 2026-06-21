@@ -14,6 +14,12 @@ export default function RankingsPage() {
         title="天位神榜"
         description="以神紋卡片階層呈現七界宇宙戰力與權能位階，可點進代表角色詳情。"
       />
+      <Link
+        href="/rankings/characters"
+        className="mt-6 inline-flex items-center gap-2 rounded-lg border border-divine-gold/30 bg-deep-space/45 px-4 py-2.5 text-sm text-platinum transition hover:bg-divine-gold/10"
+      >
+        查看讀者票選的角色人氣榜 →
+      </Link>
       <div className="mt-8 grid gap-5">
         {rankingTiers.map((tier) => (
           <GlassCard key={tier.id} className="overflow-hidden p-0">

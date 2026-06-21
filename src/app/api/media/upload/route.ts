@@ -11,9 +11,11 @@ const allowedCategories = new Set([
   "homepage",
   "character",
   "product",
+  "ebook",
   "lore",
   "location",
   "artifact",
+  "campaign",
   "general",
 ]);
 const maxImageSize = 5 * 1024 * 1024;
@@ -35,6 +37,10 @@ export async function POST(request: NextRequest) {
   const categoryInput = String(formData.get("category") ?? "general");
   const category = allowedCategories.has(categoryInput) ? categoryInput : "general";
   const alt = String(formData.get("alt") ?? "");
+  const tags = String(formData.get("tags") ?? "")
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter(Boolean);
 
   if (!(file instanceof File)) {
     return NextResponse.json({ error: "Missing image file." }, { status: 400 });
@@ -77,6 +83,8 @@ export async function POST(request: NextRequest) {
     size: file.size,
     alt,
     category,
+    tags,
+    usedBy: [],
     uploadedBy: admin.admin.uid,
     createdAt: FieldValue.serverTimestamp(),
   });

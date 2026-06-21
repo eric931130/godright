@@ -6,6 +6,7 @@ import { chapters, volumes } from "@/data/novel";
 import { shopProducts } from "@/data/shop";
 import { newsItems } from "@/data/mock/news";
 import { absoluteUrl } from "@/lib/seo";
+import { listActiveBundles } from "@/lib/shop/bundles";
 
 const staticRoutes = [
   "/",
@@ -14,8 +15,10 @@ const staticRoutes = [
   "/shop",
   "/shop/ebooks",
   "/shop/digital",
+  "/shop/bundles",
   "/characters",
   "/rankings",
+  "/rankings/characters",
   "/relationships",
   "/factions",
   "/lore",
@@ -23,15 +26,18 @@ const staticRoutes = [
   "/map",
   "/locations",
   "/artifacts",
+  "/hall",
   "/news",
   "/newsletter",
+  "/collaboration",
+  "/press-kit",
   "/terms",
   "/privacy",
   "/refund",
   "/copyright",
 ];
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   const entries: MetadataRoute.Sitemap = staticRoutes.map((route) => ({
     url: absoluteUrl(route),
@@ -118,6 +124,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: item.date,
       changeFrequency: "weekly",
       priority: 0.55,
+    });
+  }
+
+  const bundles = await listActiveBundles();
+  for (const bundle of bundles) {
+    entries.push({
+      url: absoluteUrl(`/shop/bundles/${bundle.slug}`),
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.6,
     });
   }
 

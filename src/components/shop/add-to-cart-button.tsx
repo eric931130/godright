@@ -2,6 +2,7 @@
 
 import { ShoppingCart } from "lucide-react";
 
+import { trackEvent } from "@/lib/analytics/event-tracker";
 import { useCart } from "@/lib/shop/cart-storage";
 import { cn } from "@/lib/utils";
 
@@ -21,7 +22,10 @@ export function AddToCartButton({
   return (
     <button
       type="button"
-      onClick={() => cart.addItem(productId)}
+      onClick={() => {
+        cart.addItem(productId);
+        trackEvent("add_to_cart", { targetType: "product", targetId: productId });
+      }}
       className={cn(
         "inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-divine-gold px-4 text-sm font-medium text-deep-space transition hover:bg-platinum",
         className,

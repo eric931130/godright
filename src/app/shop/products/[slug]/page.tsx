@@ -7,9 +7,16 @@ import { Badge } from "@/components/common/badge";
 import { DivineButton } from "@/components/common/divine-button";
 import { GlassCard } from "@/components/common/glass-card";
 import { SectionTitle } from "@/components/common/section-title";
+import { TrackEvent } from "@/components/analytics/track-event";
 import { FavoriteButton } from "@/components/account/favorite-button";
 import { AddToCartButton } from "@/components/shop/add-to-cart-button";
 import { ShopProductCard } from "@/components/shop/shop-product-card";
+import { EbookHero } from "@/components/shop/ebook-hero";
+import { EbookPreview } from "@/components/shop/ebook-preview";
+import { EbookBonusList } from "@/components/shop/ebook-bonus-list";
+import { EbookFAQ } from "@/components/shop/ebook-faq";
+import { RelatedBundle } from "@/components/shop/related-bundle";
+import { ProductBundleRecommendations } from "@/components/shop/product-bundle-recommendations";
 import { JsonLd } from "@/components/seo/json-ld";
 import { formatPrice, getProduct, shopProducts } from "@/data/shop";
 import { absoluteUrl, createPageMetadata } from "@/lib/seo";
@@ -63,12 +70,16 @@ export default async function ProductPage({ params }: ProductPageProps) {
     notFound();
   }
 
+  const ebook = product.ebook;
+  const isEbook = product.type === "ebook" && Boolean(ebook);
+
   const recommendations = shopProducts
     .filter((item) => item.id !== product.id && item.category === product.category)
     .slice(0, 3);
 
   return (
     <div className="site-container py-10 sm:py-14">
+      <TrackEvent event="product_view" targetType="product" targetId={product.id} />
       <JsonLd
         data={{
           "@context": "https://schema.org",
@@ -91,6 +102,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
           },
         }}
       />
+      {isEbook && ebook ? (
+        <EbookHero product={product} />
+      ) : (
       <section className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
         <GlassCard className="overflow-hidden p-0">
           <div className="image-placeholder relative aspect-[4/3] lg:aspect-[3/4]">
@@ -146,6 +160,18 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </div>
         </div>
       </section>
+      )}
+
+      {isEbook && ebook ? (
+        <>
+          <EbookPreview ebook={ebook} />
+          <section className="pb-4">
+            <EbookBonusList ebook={ebook} />
+          </section>
+          <RelatedBundle ebook={ebook} />
+          <EbookFAQ ebook={ebook} />
+        </>
+      ) : null}
 
       <section className="grid gap-6 py-16 lg:grid-cols-[1fr_0.8fr]">
         <GlassCard className="p-6">
@@ -195,6 +221,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </p>
         </GlassCard>
       </section>
+
+      <ProductBundleRecommendations productId={product.id} productSlug={product.slug} />
 
       <section className="py-16">
         <SectionTitle eyebrow="Recommended" title="推薦商品" />

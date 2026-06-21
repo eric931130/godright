@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
 
+import { RouteAnalytics } from "@/components/analytics/track-event";
 import { FirebaseClientBootstrap } from "@/components/firebase/firebase-client-bootstrap";
 import { SiteShell } from "@/components/site/site-shell";
 import { siteConfig } from "@/config/site";
@@ -57,6 +58,7 @@ export default function RootLayout({
     <html lang="zh-Hant" className="dark">
       <body>
         <FirebaseClientBootstrap />
+        <RouteAnalytics />
         <SiteShell>{children}</SiteShell>
       </body>
     </html>

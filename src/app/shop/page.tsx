@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookOpen, Download, ShoppingCart, Sparkles } from "lucide-react";
+import { BookOpen, Download, Package, ShoppingCart, Sparkles } from "lucide-react";
 
 import { Badge } from "@/components/common/badge";
 import { DivineButton } from "@/components/common/divine-button";
@@ -30,6 +30,10 @@ export default function ShopPage() {
               <DivineButton href="/shop/digital" variant="outline">
                 <Download className="size-5" aria-hidden="true" />
                 數位商品
+              </DivineButton>
+              <DivineButton href="/shop/bundles" variant="outline">
+                <Package className="size-5" aria-hidden="true" />
+                組合包
               </DivineButton>
               <DivineButton href="/cart" variant="outline">
                 <ShoppingCart className="size-5" aria-hidden="true" />

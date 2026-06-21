@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { shopProducts, type ShopProduct } from "@/data/shop";
+import { computeCouponDiscount, type AppliedCoupon } from "@/lib/shop/coupon-types";
 
 export type CartItem = {
   productId: string;
@@ -10,6 +11,25 @@ export type CartItem = {
 };
 
 const cartKey = "godright.cart";
+const couponKey = "godright.coupon";
+
+function readCoupon(): AppliedCoupon | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(couponKey);
+    return raw ? (JSON.parse(raw) as AppliedCoupon) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeCoupon(coupon: AppliedCoupon | null) {
+  if (coupon) {
+    window.localStorage.setItem(couponKey, JSON.stringify(coupon));
+  } else {
+    window.localStorage.removeItem(couponKey);
+  }
+}
 
 function readCart(): CartItem[] {
   if (typeof window === "undefined") {
@@ -30,12 +50,13 @@ function writeCart(items: CartItem[]) {
 
 export function useCart() {
   const [items, setItems] = useState<CartItem[]>([]);
-  const [coupon, setCoupon] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
       setItems(readCart());
+      setAppliedCoupon(readCoupon());
       setReady(true);
     }, 0);
 
@@ -57,7 +78,18 @@ export function useCart() {
     (sum, item) => sum + item.product.price * item.quantity,
     0,
   );
-  const discount = coupon.trim().toUpperCase() === "GODRIGHT" ? Math.round(subtotal * 0.1) : 0;
+  const discount = appliedCoupon
+    ? computeCouponDiscount(
+        appliedCoupon,
+        detailedItems.map((item) => ({
+          productId: item.product.id,
+          productSlug: item.product.slug,
+          productType: item.product.type,
+          price: item.product.price,
+          quantity: item.quantity,
+        })),
+      )
+    : 0;
   const total = Math.max(0, subtotal - discount);
 
   const update = (next: CartItem[]) => {
@@ -66,15 +98,21 @@ export function useCart() {
     window.dispatchEvent(new Event("godright-cart-updated"));
   };
 
+  const setCoupon = (coupon: AppliedCoupon | null) => {
+    setAppliedCoupon(coupon);
+    writeCoupon(coupon);
+  };
+
   return {
     ready,
     items,
     detailedItems,
-    coupon,
+    appliedCoupon,
     subtotal,
     discount,
     total,
-    setCoupon,
+    applyCoupon: (coupon: AppliedCoupon) => setCoupon(coupon),
+    clearCoupon: () => setCoupon(null),
     addItem: (productId: string, quantity = 1) => {
       update(
         items.some((item) => item.productId === productId)
@@ -102,6 +140,7 @@ export function useCart() {
     },
     clearCart: () => {
       update([]);
+      setCoupon(null);
     },
   };
 }

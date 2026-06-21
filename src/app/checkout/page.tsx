@@ -1,25 +1,56 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Badge } from "@/components/common/badge";
 import { DivineButton } from "@/components/common/divine-button";
 import { GlassCard } from "@/components/common/glass-card";
 import { Input } from "@/components/ui/input";
+import { trackEvent } from "@/lib/analytics/event-tracker";
 import { useCart } from "@/lib/shop/cart-storage";
+import { useCurrentUser } from "@/lib/auth/useCurrentUser";
 
 const paymentMethods = ["信用卡", "LINE Pay", "ATM", "超商付款", "Apple Pay", "Google Pay"];
 
 export default function CheckoutPage() {
   const router = useRouter();
   const cart = useCart();
+  const { user } = useCurrentUser();
   const [payment, setPayment] = useState(paymentMethods[0]);
   const [agreed, setAgreed] = useState(false);
 
-  const submitOrder = (event: React.FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    trackEvent("checkout_start");
+  }, []);
+
+  const submitOrder = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!agreed) return;
+    const productIds = cart.detailedItems.map((item) => item.productId);
+    const couponCode = cart.appliedCoupon?.code;
+    trackEvent("purchase_success", { metadata: { productIds, paymentMethod: payment, coupon: couponCode } });
+
+    if (couponCode) {
+      try {
+        const headers: Record<string, string> = { "content-type": "application/json" };
+        if (user) {
+          try {
+            headers.authorization = `Bearer ${await user.getIdToken()}`;
+          } catch {
+            // 匿名結帳：略過授權標頭。
+          }
+        }
+        await fetch("/api/coupons/redeem", {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ code: couponCode }),
+        });
+      } catch {
+        // redeem 失敗不阻擋 mock 結帳流程。
+      }
+    }
+
     cart.clearCart();
     router.push("/orders/success");
   };
@@ -28,7 +59,7 @@ export default function CheckoutPage() {
     <div className="site-container py-10 sm:py-14">
       <Badge>Mock Checkout</Badge>
       <h1 className="mt-4 font-serif text-4xl font-semibold text-platinum">結帳頁</h1>
-      <form onSubmit={submitOrder} className="mt-8 grid gap-6 lg:grid-cols-[1fr_24rem]">
+      <form onSubmit={(event) => void submitOrder(event)} className="mt-8 grid gap-6 lg:grid-cols-[1fr_24rem]">
         <GlassCard className="p-6">
           <h2 className="font-serif text-2xl font-semibold text-platinum">購買人資料</h2>
           <div className="mt-5 grid gap-4">

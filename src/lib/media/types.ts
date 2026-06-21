@@ -2,10 +2,17 @@ export type MediaCategory =
   | "homepage"
   | "character"
   | "product"
+  | "ebook"
   | "lore"
   | "location"
   | "artifact"
+  | "campaign"
   | "general";
+
+export type MediaUsage = {
+  targetType: string;
+  targetId: string;
+};
 
 export type SiteContent = {
   id: string;
@@ -32,6 +39,8 @@ export type MediaAsset = {
   height?: number;
   alt?: string;
   category: MediaCategory;
+  tags?: string[];
+  usedBy?: MediaUsage[];
   uploadedBy: string;
   createdAt: unknown;
 };

@@ -193,6 +193,59 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
+    // 分析事件：前台（含匿名）可有限寫入，但不可讀取全站分析資料。
+    // 後台讀取一律透過 Admin SDK（繞過規則）。
+    match /analyticsEvents/{eventId} {
+      allow create: if request.resource.data.eventType is string &&
+        request.resource.data.keys().hasOnly([
+          "eventType",
+          "targetType",
+          "targetId",
+          "path",
+          "metadata",
+          "userId",
+          "anonymousId",
+          "createdAt"
+        ]) &&
+        (!("userId" in request.resource.data) ||
+          (request.auth != null && request.resource.data.userId == request.auth.uid));
+      allow read, update, delete: if false;
+    }
+
+    // 每日彙總：僅 admin 可讀寫（寫入由 Admin SDK 或排程執行）。
+    match /dailyMetrics/{metricId} {
+      allow read, write: if isAdmin();
+    }
+
+    // 優惠碼：僅 admin 可寫；前台不可直接讀（驗證一律經 server API，繞過規則）。
+    match /coupons/{couponId} {
+      allow read, write: if isAdmin();
+    }
+
+    // 優惠碼使用紀錄：本人可讀自己的，admin 可讀全部；寫入經 server（Admin SDK）。
+    match /couponRedemptions/{redemptionId} {
+      allow read: if isAdmin() || (signedIn() && resource.data.userId == request.auth.uid);
+      allow write: if isAdmin();
+    }
+
+    // 組合包：公開讀上架中組合，admin 可寫。
+    match /bundles/{bundleId} {
+      allow read: if resource.data.isActive == true || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // 活動 / Banner：公開讀啟用中活動，admin 可寫。
+    match /campaigns/{campaignId} {
+      allow read: if resource.data.isActive == true || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // 合作邀約：任何人可建立，僅 admin 可讀 / 管理。
+    match /collaborationInquiries/{inquiryId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

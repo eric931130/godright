@@ -25,6 +25,8 @@ export const siteConfig = {
     { title: "登入", href: "/login" },
     { title: "註冊", href: "/register" },
     { title: "訂閱消息", href: "/newsletter" },
+    { title: "IP 合作邀約", href: "/collaboration" },
+    { title: "Press Kit", href: "/press-kit" },
     { title: "隱私權政策", href: "/privacy" },
     { title: "服務條款", href: "/terms" },
     { title: "退款規則", href: "/refund" },

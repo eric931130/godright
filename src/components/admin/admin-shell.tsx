@@ -1,18 +1,24 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
+  BarChart3,
   BookOpen,
   Boxes,
   Gem,
+  Handshake,
   Home,
   Images,
+  Layers,
   LayoutDashboard,
   Mail,
+  Megaphone,
   Newspaper,
   Package,
   Settings,
   ShieldAlert,
   Sparkles,
+  TicketPercent,
+  TrendingUp,
   Users,
 } from "lucide-react";
 
@@ -23,18 +29,26 @@ import { cn } from "@/lib/utils";
 
 const adminNav = [
   { title: "儀表板", href: "/admin", icon: LayoutDashboard },
+  { title: "數據分析", href: "/admin/analytics", icon: BarChart3 },
+  { title: "角色分析", href: "/admin/analytics/characters", icon: TrendingUp },
+  { title: "商品分析", href: "/admin/analytics/products", icon: TrendingUp },
+  { title: "電子書分析", href: "/admin/analytics/ebooks", icon: TrendingUp },
   { title: "章節", href: "/admin/chapters", icon: BookOpen },
   { title: "商品", href: "/admin/products", icon: Package },
+  { title: "組合包", href: "/admin/bundles", icon: Layers },
+  { title: "優惠碼", href: "/admin/coupons", icon: TicketPercent },
   { title: "角色", href: "/admin/characters", icon: Users },
   { title: "使用者", href: "/admin/users", icon: Users },
   { title: "手動解鎖", href: "/admin/manual-unlock", icon: ShieldAlert },
   { title: "閱讀大廳", href: "/admin/hall", icon: Newspaper },
+  { title: "活動管理", href: "/admin/campaigns", icon: Megaphone },
   { title: "媒體庫", href: "/admin/media", icon: Images },
   { title: "世界觀", href: "/admin/lore", icon: Sparkles },
   { title: "場地", href: "/admin/locations", icon: Home },
   { title: "物件", href: "/admin/artifacts", icon: Gem },
   { title: "最新消息", href: "/admin/news", icon: Newspaper },
   { title: "訂閱名單", href: "/admin/newsletter", icon: Mail },
+  { title: "合作邀約", href: "/admin/collaboration-inquiries", icon: Handshake },
   { title: "訂單", href: "/admin/orders", icon: Boxes },
   { title: "設定", href: "/admin/settings", icon: Settings },
 ];
