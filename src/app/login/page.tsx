@@ -9,6 +9,7 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
 } from "firebase/auth";
+import { ArrowRight, KeyRound } from "lucide-react";
 
 import { Badge } from "@/components/common/badge";
 import { GlassCard } from "@/components/common/glass-card";
@@ -31,6 +32,17 @@ async function syncProfile(displayName?: string) {
   });
 }
 
+async function getLoginTarget() {
+  const token = await getFirebaseAuth().currentUser?.getIdToken(true);
+  if (!token) return "/account";
+
+  const response = await fetch("/api/auth/login-target", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await response.json().catch(() => null);
+  return typeof data?.target === "string" ? data.target : "/account";
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -41,8 +53,7 @@ export default function LoginPage() {
 
   async function finishLogin(displayName?: string) {
     await syncProfile(displayName);
-    const tokenResult = await getFirebaseAuth().currentUser?.getIdTokenResult(true);
-    router.push(tokenResult?.claims.admin === true ? "/admin-verify" : "/account");
+    router.push(await getLoginTarget());
   }
 
   async function handleEmailLogin(event: React.FormEvent<HTMLFormElement>) {
@@ -53,7 +64,7 @@ export default function LoginPage() {
       await signInWithEmailAndPassword(getFirebaseAuth(), email, password);
       await finishLogin();
     } catch {
-      setError("登入失敗，請確認 Email 與密碼。");
+      setError("登入失敗，請確認 Email 與密碼是否正確。");
     } finally {
       setIsSubmitting(false);
     }
@@ -76,10 +87,11 @@ export default function LoginPage() {
     <div className="site-container flex min-h-[calc(100svh-4rem)] items-center py-16">
       <GlassCard className="mx-auto w-full max-w-lg p-6 sm:p-8">
         <Badge>Firebase Auth</Badge>
-        <h1 className="mt-4 font-serif text-4xl text-platinum">登入七界</h1>
+        <h1 className="mt-4 font-serif text-4xl text-platinum">登入神權帳號</h1>
         <p className="mt-3 text-sm leading-7 text-muted-foreground">
-          一般讀者登入後可管理書架、收藏與閱讀進度；開發者帳號會進入神權封印驗證。
+          登入後可管理書架、收藏角色、追蹤閱讀進度。開發者帳號登入後會進入三次封印驗證。
         </p>
+
         <form className="mt-6 grid gap-4" onSubmit={handleEmailLogin}>
           <Input
             required
@@ -108,11 +120,16 @@ export default function LoginPage() {
               />
               記住我
             </label>
-            <Link className="text-divine-gold" href="/account/settings">
+            <Link className="text-divine-gold hover:text-platinum" href="/account/settings">
               忘記密碼
             </Link>
           </div>
-          <Button className="h-11 bg-divine-gold text-deep-space hover:bg-platinum" disabled={isSubmitting} type="submit">
+          <Button
+            className="h-11 bg-divine-gold text-deep-space hover:bg-platinum"
+            disabled={isSubmitting}
+            type="submit"
+          >
+            <KeyRound className="size-4" />
             登入
           </Button>
         </form>
@@ -124,7 +141,7 @@ export default function LoginPage() {
             type="button"
             onClick={() => handleProviderLogin(new GoogleAuthProvider())}
           >
-            Google
+            使用 Google 登入
           </Button>
           <Button
             className="border-divine-gold/30 bg-transparent text-platinum hover:bg-divine-gold/10"
@@ -132,13 +149,16 @@ export default function LoginPage() {
             type="button"
             onClick={() => handleProviderLogin(new OAuthProvider("apple.com"))}
           >
-            Apple
+            使用 Apple 登入
           </Button>
         </div>
 
         {error ? <p className="mt-4 text-sm text-red-300">{error}</p> : null}
-        <p className="mt-5 text-sm text-muted-foreground">
-          還沒有帳號？ <Link className="text-divine-gold" href="/register">註冊</Link>
+        <p className="mt-5 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+          還沒有帳號？
+          <Link className="inline-flex items-center gap-1 text-divine-gold hover:text-platinum" href="/register">
+            免費註冊 <ArrowRight className="size-3" />
+          </Link>
         </p>
       </GlassCard>
     </div>

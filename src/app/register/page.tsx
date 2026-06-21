@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { UserPlus } from "lucide-react";
 
 import { Badge } from "@/components/common/badge";
 import { GlassCard } from "@/components/common/glass-card";
@@ -32,7 +33,7 @@ export default function RegisterPage() {
     }
 
     if (!acceptTerms) {
-      setError("請先同意服務條款。");
+      setError("請先同意服務條款與隱私權政策。");
       return;
     }
 
@@ -62,11 +63,12 @@ export default function RegisterPage() {
   return (
     <div className="site-container flex min-h-[calc(100svh-4rem)] items-center py-16">
       <GlassCard className="mx-auto w-full max-w-xl p-6 sm:p-8">
-        <Badge>Join</Badge>
-        <h1 className="mt-4 font-serif text-4xl text-platinum">註冊讀者帳號</h1>
+        <Badge>Join the Seven Realms</Badge>
+        <h1 className="mt-4 font-serif text-4xl text-platinum">免費註冊讀者帳號</h1>
         <p className="mt-3 text-sm leading-7 text-muted-foreground">
-          建立帳號後會自動產生 10 位 Public UID，可用於後台客服查詢與個人資訊展示。
+          建立帳號後會產生 10 位 Public UID，可用於會員中心、書架、收藏、閱讀進度與客服查詢。
         </p>
+
         <form className="mt-6 grid gap-4" onSubmit={handleRegister}>
           <Input
             required
@@ -103,7 +105,7 @@ export default function RegisterPage() {
             value={confirmPassword}
             onChange={(event) => setConfirmPassword(event.target.value)}
           />
-          <label className="flex items-start gap-2 text-sm text-muted-foreground">
+          <label className="flex items-start gap-2 text-sm leading-6 text-muted-foreground">
             <input
               required
               checked={acceptTerms}
@@ -111,24 +113,42 @@ export default function RegisterPage() {
               type="checkbox"
               onChange={(event) => setAcceptTerms(event.target.checked)}
             />
-            我已閱讀並同意服務條款與隱私權政策
+            <span>
+              我已閱讀並同意{" "}
+              <Link className="text-divine-gold hover:text-platinum" href="/terms">
+                服務條款
+              </Link>{" "}
+              與{" "}
+              <Link className="text-divine-gold hover:text-platinum" href="/privacy">
+                隱私權政策
+              </Link>
+            </span>
           </label>
-          <label className="flex items-start gap-2 text-sm text-muted-foreground">
+          <label className="flex items-start gap-2 text-sm leading-6 text-muted-foreground">
             <input
               checked={subscribe}
               className="mt-1"
               type="checkbox"
               onChange={(event) => setSubscribe(event.target.checked)}
             />
-            訂閱小說更新、角色公開與周邊消息
+            訂閱小說更新、角色公開、電子書上架與活動通知
           </label>
-          <Button className="h-11 bg-divine-gold text-deep-space hover:bg-platinum" disabled={isSubmitting} type="submit">
-            註冊
+          <Button
+            className="h-11 bg-divine-gold text-deep-space hover:bg-platinum"
+            disabled={isSubmitting}
+            type="submit"
+          >
+            <UserPlus className="size-4" />
+            建立帳號
           </Button>
         </form>
+
         {error ? <p className="mt-4 text-sm text-red-300">{error}</p> : null}
         <p className="mt-5 text-sm text-muted-foreground">
-          已經有帳號？ <Link className="text-divine-gold" href="/login">登入</Link>
+          已經有帳號？{" "}
+          <Link className="text-divine-gold hover:text-platinum" href="/login">
+            前往登入
+          </Link>
         </p>
       </GlassCard>
     </div>
