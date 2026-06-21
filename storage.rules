@@ -1,0 +1,106 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn() && request.auth.token.admin == true;
+    }
+
+    function isImage() {
+      return request.resource != null &&
+        request.resource.contentType.matches("image/(jpeg|jpg|png|webp)");
+    }
+
+    function isSmallImage(maxMb) {
+      return isImage() && request.resource.size <= maxMb * 1024 * 1024;
+    }
+
+    match /public/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin() && isSmallImage(10);
+    }
+
+    match /ip-assets/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin() && isSmallImage(10);
+    }
+
+    match /avatars/{userId}/{fileName} {
+      allow read: if true;
+      allow write: if signedIn() && request.auth.uid == userId && isSmallImage(3);
+    }
+
+    match /characters/{characterId}/{imageType} {
+      allow read: if true;
+      allow write: if isAdmin() && imageType.matches("(portrait|chibi|banner)") && isSmallImage(10);
+    }
+
+    match /characters/{characterId}/gallery/{imageId} {
+      allow read: if true;
+      allow write: if isAdmin() && isSmallImage(10);
+    }
+
+    match /products/{productId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin() && isSmallImage(10);
+    }
+
+    match /homepage/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin() && isSmallImage(10);
+    }
+
+    match /lore/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin() && isSmallImage(10);
+    }
+
+    match /locations/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin() && isSmallImage(10);
+    }
+
+    match /artifacts/{artifactId} {
+      allow read: if true;
+      allow write: if isAdmin() && isSmallImage(10);
+    }
+
+    match /beasts/{beastId} {
+      allow read: if true;
+      allow write: if isAdmin() && isSmallImage(10);
+    }
+
+    match /weapons/{weaponId} {
+      allow read: if true;
+      allow write: if isAdmin() && isSmallImage(10);
+    }
+
+    match /ebooks/{allPaths=**} {
+      allow read: if false;
+      allow write: if isAdmin();
+    }
+
+    match /digital-products/{allPaths=**} {
+      allow read: if false;
+      allow write: if isAdmin();
+    }
+
+    match /merch/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin() && isSmallImage(10);
+    }
+
+    match /user-downloads/{userId}/{allPaths=**} {
+      allow read: if signedIn() && request.auth.uid == userId;
+      allow write: if isAdmin();
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

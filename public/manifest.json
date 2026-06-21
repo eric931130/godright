@@ -1,0 +1,19 @@
+{
+  "name": "《神權崩壞：誰是最後的天命之子》官方網站",
+  "short_name": "神權崩壞",
+  "description": "進入神權崩壞的七界宇宙，閱讀小說、探索角色、收藏電子書與 IP 周邊。",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#080814",
+  "theme_color": "#D9B45F",
+  "lang": "zh-Hant",
+  "categories": ["books", "entertainment", "shopping"],
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}

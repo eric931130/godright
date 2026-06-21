@@ -1,0 +1,13 @@
+runConfig:
+  minInstances: 0
+  maxInstances: 10
+  concurrency: 80
+  cpu: 1
+  memoryMiB: 512
+env:
+  - variable: NEXT_PUBLIC_SITE_URL
+    value: https://godright-75b61.web.app
+  - variable: NEXT_PUBLIC_DATA_SOURCE
+    value: mock
+  - variable: PAYMENT_PROVIDER
+    value: mock
