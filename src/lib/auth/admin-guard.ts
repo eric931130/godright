@@ -1,7 +1,5 @@
 import "server-only";
 
-import { cookies } from "next/headers";
-
 import { verifyFirebaseIdToken } from "@/lib/firebase/admin";
 
 type AdminCheck = {
@@ -46,22 +44,7 @@ export async function verifyUniqueAdminToken(idToken: string): Promise<AdminVeri
 }
 
 export async function hasAdminSecondFactorCookie() {
-  const cookieStore = await cookies();
-  const value = cookieStore.get("godright_admin_2fa")?.value;
-
-  if (!value) {
-    return false;
-  }
-
-  const [version, uid, expiresAt, signature] = value.split(".");
-  if (version !== "v1" || !uid || !expiresAt || !signature) {
-    return false;
-  }
-
-  if (Number(expiresAt) < Date.now()) {
-    return false;
-  }
-
-  const { signAdminCookieValue } = await import("@/lib/auth/verify-admin-session");
-  return signature === signAdminCookieValue(uid, expiresAt);
+  const { getAdminSecondFactorSession } = await import("@/lib/auth/verify-admin-session");
+  const session = await getAdminSecondFactorSession();
+  return session.verified;
 }

@@ -2,7 +2,9 @@ import { Crown, Flame, MoonStar } from "lucide-react";
 
 import { SectionTitle } from "@/components/common/section-title";
 import { GlassCard } from "@/components/common/glass-card";
+import { EditableText } from "@/components/dev/editable-text";
 import { MotionReveal } from "@/components/site/motion-reveal";
+import { getContentOverrides, resolveText } from "@/lib/site-content/content-overrides";
 
 const storyBeats = [
   {
@@ -22,7 +24,9 @@ const storyBeats = [
   },
 ];
 
-export function StorySection() {
+export async function StorySection() {
+  const overrides = await getContentOverrides();
+
   return (
     <section className="site-container py-16">
       <SectionTitle
@@ -40,12 +44,19 @@ export function StorySection() {
                 <div className="flex size-12 items-center justify-center rounded-lg bg-divine-gold/12 text-divine-gold">
                   <Icon className="size-5" aria-hidden="true" />
                 </div>
-                <h3 className="mt-5 font-serif text-xl font-semibold text-platinum">
-                  {beat.title}
-                </h3>
-                <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                  {beat.text}
-                </p>
+                <EditableText
+                  as="h3"
+                  contentKey={`home.story.beat${index}.title`}
+                  value={resolveText(overrides, `home.story.beat${index}.title`, beat.title)}
+                  className="mt-5 block font-serif text-xl font-semibold text-platinum"
+                />
+                <EditableText
+                  as="p"
+                  multiline
+                  contentKey={`home.story.beat${index}.text`}
+                  value={resolveText(overrides, `home.story.beat${index}.text`, beat.text)}
+                  className="mt-3 block text-sm leading-7 text-muted-foreground"
+                />
               </GlassCard>
             </MotionReveal>
           );

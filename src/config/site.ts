@@ -1,10 +1,11 @@
 export const siteConfig = {
   name: "神權崩壞：誰是最後的天命之子",
   shortName: "神權崩壞",
+  studioName: "神權天命工作室",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://godright.example.com",
   description:
     "《神權崩壞：誰是最後的天命之子》官方文創網站，整合小說閱讀、電子書商城、角色圖鑑、世界觀百科、閱讀大廳與會員系統。",
-  contactEmail: "contact@godright.example.com",
+  contactEmail: "eric1130eric@gmail.com",
   mainNav: [
     { title: "首頁", href: "/" },
     { title: "小說閱讀", href: "/novel" },

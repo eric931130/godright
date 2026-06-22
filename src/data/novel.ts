@@ -312,7 +312,7 @@ export const novelCatalog: NovelCatalog = {
   id: "godright-collapse",
   title: "神權崩壞：誰是最後的天命之子",
   subtitle: "當神權崩壞，誰才是最後被命運選中的天命之子？",
-  author: "Godright IP Studio",
+  author: "神權天命工作室",
   status: "連載中",
   wordCount: "約 18.6 萬字",
   categories: ["東方神權幻想", "七界宇宙", "神魔對立", "天命之子", "暗黑神殿"],

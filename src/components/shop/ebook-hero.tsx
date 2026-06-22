@@ -5,6 +5,7 @@ import { DivineButton } from "@/components/common/divine-button";
 import { GlassCard } from "@/components/common/glass-card";
 import { FavoriteButton } from "@/components/account/favorite-button";
 import { AddToCartButton } from "@/components/shop/add-to-cart-button";
+import { EditableText } from "@/components/dev/editable-text";
 import { formatPrice, type ShopProduct } from "@/data/shop";
 
 export function EbookHero({ product }: { product: ShopProduct }) {
@@ -26,12 +27,26 @@ export function EbookHero({ product }: { product: ShopProduct }) {
 
       <div className="flex flex-col">
         {ebook.tagline ? (
-          <p className="text-sm uppercase tracking-[0.22em] text-divine-gold">{ebook.tagline}</p>
+          <EditableText
+            as="p"
+            contentKey={`product.${product.slug}.ebook.tagline`}
+            value={ebook.tagline}
+            className="block text-sm uppercase tracking-[0.22em] text-divine-gold"
+          />
         ) : null}
-        <h1 className="mt-3 font-serif text-4xl font-semibold leading-tight text-platinum sm:text-5xl">
-          {product.title}
-        </h1>
-        <p className="mt-4 text-lg leading-8 text-muted-foreground">{product.subtitle}</p>
+        <EditableText
+          as="h1"
+          contentKey={`product.${product.slug}.title`}
+          value={product.title}
+          className="mt-3 block font-serif text-4xl font-semibold leading-tight text-platinum sm:text-5xl"
+        />
+        <EditableText
+          as="p"
+          multiline
+          contentKey={`product.${product.slug}.subtitle`}
+          value={product.subtitle}
+          className="mt-4 block text-lg leading-8 text-muted-foreground"
+        />
 
         <div className="mt-5 flex flex-wrap gap-2">
           {ebook.fileFormats.map((format) => (

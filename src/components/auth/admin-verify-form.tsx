@@ -45,7 +45,18 @@ export function AdminVerifyForm() {
       setPin("");
       setStep(data.step ?? step + 1);
       if (data.verified && data.redirectTo) {
-        window.location.href = data.redirectTo;
+        const sessionResponse = await fetch("/api/admin/session", {
+          cache: "no-store",
+          credentials: "same-origin",
+        });
+        const session = await sessionResponse.json().catch(() => null);
+
+        if (session?.verified) {
+          window.location.assign(data.redirectTo);
+          return;
+        }
+
+        setMessage("PIN 已通過，但瀏覽器尚未寫入開發者驗證狀態。請重新按一次驗證，或重新整理後再試。");
         return;
       }
       setMessage(`第 ${data.step} 次驗證完成，請繼續完成下一次封印驗證。`);

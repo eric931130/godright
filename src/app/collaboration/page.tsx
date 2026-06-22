@@ -14,6 +14,7 @@ import { DivineButton } from "@/components/common/divine-button";
 import { GlassCard } from "@/components/common/glass-card";
 import { SectionTitle } from "@/components/common/section-title";
 import { CollaborationForm } from "@/components/collaboration/collaboration-form";
+import { siteConfig } from "@/config/site";
 import { createPageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = createPageMetadata({
@@ -47,7 +48,7 @@ export default function CollaborationPage() {
         <GlassCard className="p-6">
           <h2 className="font-serif text-2xl font-semibold text-platinum">關於作者與作品</h2>
           <p className="mt-4 text-sm leading-8 text-muted-foreground">
-            《神權崩壞：誰是最後的天命之子》由 Godright IP Studio 創作，融合東方神話、暗黑神殿與星界命運，
+            《神權崩壞：誰是最後的天命之子》由 {siteConfig.studioName} 創作，融合東方神話、暗黑神殿與星界命運，
             構築神界、星界、魔界與凡界交錯的七界宇宙。故事以神權崩壞為起點，探討天命、信仰與自我的衝突。
           </p>
         </GlassCard>

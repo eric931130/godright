@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 import { RouteAnalytics } from "@/components/analytics/track-event";
+import { AuthModalProvider } from "@/components/auth/auth-modal-provider";
+import { DevModeProvider } from "@/components/dev/dev-mode-provider";
 import { FirebaseClientBootstrap } from "@/components/firebase/firebase-client-bootstrap";
 import { SiteShell } from "@/components/site/site-shell";
 import { siteConfig } from "@/config/site";
@@ -16,9 +18,9 @@ export const metadata: Metadata = {
   description: siteConfig.description,
   applicationName: siteConfig.shortName,
   manifest: "/manifest.json",
-  authors: [{ name: "Godright IP Studio" }],
-  creator: "Godright IP Studio",
-  publisher: "Godright IP Studio",
+  authors: [{ name: siteConfig.studioName }],
+  creator: siteConfig.studioName,
+  publisher: siteConfig.studioName,
   keywords: [
     "神權崩壞",
     "天命之子",
@@ -55,11 +57,15 @@ export default function RootLayout({
   children: ReactNode;
 }>) {
   return (
-    <html lang="zh-Hant" className="dark">
+    <html lang="zh-Hant" className="dark" data-scroll-behavior="smooth">
       <body>
         <FirebaseClientBootstrap />
         <RouteAnalytics />
-        <SiteShell>{children}</SiteShell>
+        <AuthModalProvider>
+          <DevModeProvider>
+            <SiteShell>{children}</SiteShell>
+          </DevModeProvider>
+        </AuthModalProvider>
       </body>
     </html>
   );

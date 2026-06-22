@@ -24,6 +24,18 @@ export function signAdminCookieValue(uid: string, expiresAt: string) {
     .digest("hex");
 }
 
+function signAdminCookiePayload(payload: string) {
+  return crypto.createHmac("sha256", getSigningSecret()).update(payload).digest("hex");
+}
+
+function timingSafeHexEqual(left: string, right: string) {
+  try {
+    return crypto.timingSafeEqual(Buffer.from(left, "hex"), Buffer.from(right, "hex"));
+  } catch {
+    return false;
+  }
+}
+
 export function verifyPinHash(pin: string) {
   const expectedHash = process.env.ADMIN_SECONDARY_PIN_HASH;
   const salt = process.env.ADMIN_SECONDARY_PIN_SALT;
@@ -49,21 +61,47 @@ export async function getAdminSecondFactorSession() {
     return { verified: false as const };
   }
 
-  const [version, uid, expiresAt, signature] = value.split(".");
+  const segments = value.split(".");
+  const [version, firstValue, secondValue, thirdValue] = segments;
+
+  if (version === "v2" && segments.length === 3 && firstValue && secondValue) {
+    const payload = firstValue;
+    const signature = secondValue;
+    const expectedSignature = signAdminCookiePayload(payload);
+
+    if (!timingSafeHexEqual(expectedSignature, signature)) {
+      return { verified: false as const };
+    }
+
+    try {
+      const parsed = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as {
+        expiresAt?: number;
+        uid?: string;
+      };
+
+      return parsed.uid && parsed.expiresAt && parsed.expiresAt > Date.now()
+        ? { verified: true as const, uid: parsed.uid, expiresAt: parsed.expiresAt }
+        : { verified: false as const };
+    } catch {
+      return { verified: false as const };
+    }
+  }
+
   const isValid =
     version === "v1" &&
-    Boolean(uid) &&
-    Boolean(expiresAt) &&
-    Number(expiresAt) > Date.now() &&
-    signAdminCookieValue(uid, expiresAt) === signature;
+    Boolean(firstValue) &&
+    Boolean(secondValue) &&
+    Number(secondValue) > Date.now() &&
+    timingSafeHexEqual(signAdminCookieValue(firstValue, secondValue), thirdValue ?? "");
 
   return isValid
-    ? { verified: true as const, uid, expiresAt: Number(expiresAt) }
+    ? { verified: true as const, uid: firstValue, expiresAt: Number(secondValue) }
     : { verified: false as const };
 }
 
 export function createVerifiedAdminCookie(uid: string) {
-  const expiresAt = String(Date.now() + 1000 * 60 * 60 * 8);
-  const signature = signAdminCookieValue(uid, expiresAt);
-  return `v1.${uid}.${expiresAt}.${signature}`;
+  const expiresAt = Date.now() + 1000 * 60 * 60 * 8;
+  const payload = Buffer.from(JSON.stringify({ uid, expiresAt }), "utf8").toString("base64url");
+  const signature = signAdminCookiePayload(payload);
+  return `v2.${payload}.${signature}`;
 }

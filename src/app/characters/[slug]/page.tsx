@@ -8,15 +8,19 @@ import { DivineButton } from "@/components/common/divine-button";
 import { GlassCard } from "@/components/common/glass-card";
 import { SectionTitle } from "@/components/common/section-title";
 import { CharacterGallery } from "@/components/characters/character-gallery";
-import { CharacterImageSwitcher } from "@/components/characters/character-image-switcher";
+import { CharacterPortraitEditable } from "@/components/characters/character-portrait-editable";
 import { CharacterInfoPanel } from "@/components/characters/character-info-panel";
 import { CharacterPowerPanel } from "@/components/characters/character-power-panel";
 import { CharacterRelatedContent } from "@/components/characters/character-related-content";
+import { EditableText } from "@/components/dev/editable-text";
 import { JsonLd } from "@/components/seo/json-ld";
 import { characters, getCharacter, getFaction } from "@/data/characters";
 import { enhanceCharacter } from "@/lib/characters/enhanced-character";
+import { getContentOverrides, resolveImage, resolveText } from "@/lib/site-content/content-overrides";
 import { absoluteUrl, createPageMetadata } from "@/lib/seo";
 import { isValidSlug } from "@/lib/validation";
+
+export const revalidate = 60;
 
 type CharacterPageProps = {
   params: Promise<{ slug: string }>;
@@ -65,8 +69,22 @@ export default async function CharacterPage({ params }: CharacterPageProps) {
     notFound();
   }
 
-  const enhancedCharacter = enhanceCharacter(character);
+  const overrides = await getContentOverrides();
+  const fieldKey = (field: string) => `character.${character.slug}.${field}`;
+  const mergedCharacter = {
+    ...character,
+    name: resolveText(overrides, fieldKey("name"), character.name),
+    title: resolveText(overrides, fieldKey("title"), character.title),
+    summary: resolveText(overrides, fieldKey("summary"), character.summary),
+    appearance: resolveText(overrides, fieldKey("appearance"), character.appearance),
+    personality: resolveText(overrides, fieldKey("personality"), character.personality),
+    storyArc: resolveText(overrides, fieldKey("storyArc"), character.storyArc),
+    quote: resolveText(overrides, fieldKey("quote"), character.quote),
+    image: resolveImage(overrides, fieldKey("portrait"), character.image) ?? character.image,
+  };
+  const enhancedCharacter = enhanceCharacter(mergedCharacter);
   const faction = getFaction(character.factionSlug);
+  const portraitOverride = overrides[fieldKey("portrait")]?.imageUrl;
 
   return (
     <div className="site-container py-10 sm:py-14">
@@ -85,11 +103,13 @@ export default async function CharacterPage({ params }: CharacterPageProps) {
       />
       <section className="grid gap-8 lg:grid-cols-[24rem_1fr]">
         <GlassCard className="overflow-hidden p-0">
-          <CharacterImageSwitcher
+          <CharacterPortraitEditable
+            contentKey={fieldKey("portrait")}
+            portraitUrl={enhancedCharacter.images.portraitUrl}
+            overrideValue={portraitOverride}
             chibiUrl={enhancedCharacter.images.chibiUrl}
             defaultMode={enhancedCharacter.defaultImageMode}
             name={enhancedCharacter.name}
-            portraitUrl={enhancedCharacter.images.portraitUrl}
           />
           <CharacterGallery
             galleryUrls={enhancedCharacter.images.galleryUrls}
@@ -102,15 +122,23 @@ export default async function CharacterPage({ params }: CharacterPageProps) {
             <Badge tone="purple">{enhancedCharacter.powerRank}</Badge>
             {faction ? <Badge tone="blue">{faction.name}</Badge> : null}
           </div>
-          <h1 className="mt-5 font-serif text-5xl font-semibold text-platinum">
-            {enhancedCharacter.name}
-          </h1>
+          <EditableText
+            as="h1"
+            contentKey={fieldKey("name")}
+            value={enhancedCharacter.name}
+            className="mt-5 block font-serif text-5xl font-semibold text-platinum"
+          />
           <p className="mt-2 text-lg text-divine-gold">
-            {enhancedCharacter.englishName} · {enhancedCharacter.title}
+            {enhancedCharacter.englishName} ·{" "}
+            <EditableText as="span" contentKey={fieldKey("title")} value={enhancedCharacter.title} />
           </p>
-          <blockquote className="mt-6 border-l border-divine-gold/40 pl-4 text-lg leading-8 text-platinum/90">
-            {enhancedCharacter.quote}
-          </blockquote>
+          <EditableText
+            as="blockquote"
+            multiline
+            contentKey={fieldKey("quote")}
+            value={enhancedCharacter.quote}
+            className="mt-6 block border-l border-divine-gold/40 pl-4 text-lg leading-8 text-platinum/90"
+          />
           <FavoriteButton
             id={enhancedCharacter.id}
             type="character"
@@ -127,16 +155,40 @@ export default async function CharacterPage({ params }: CharacterPageProps) {
       <section className="grid gap-6 py-16 lg:grid-cols-2">
         <GlassCard className="p-6">
           <h2 className="font-serif text-2xl text-platinum">外貌描述</h2>
-          <p className="mt-4 text-sm leading-7 text-muted-foreground">{enhancedCharacter.appearance}</p>
+          <EditableText
+            as="p"
+            multiline
+            contentKey={fieldKey("appearance")}
+            value={enhancedCharacter.appearance}
+            className="mt-4 block text-sm leading-7 text-muted-foreground"
+          />
         </GlassCard>
         <GlassCard className="p-6">
           <h2 className="font-serif text-2xl text-platinum">性格描述</h2>
-          <p className="mt-4 text-sm leading-7 text-muted-foreground">{enhancedCharacter.personality}</p>
+          <EditableText
+            as="p"
+            multiline
+            contentKey={fieldKey("personality")}
+            value={enhancedCharacter.personality}
+            className="mt-4 block text-sm leading-7 text-muted-foreground"
+          />
         </GlassCard>
         <GlassCard className="p-6 lg:col-span-2">
           <h2 className="font-serif text-2xl text-platinum">劇情摘要</h2>
-          <p className="mt-4 text-sm leading-7 text-muted-foreground">{enhancedCharacter.summary}</p>
-          <p className="mt-3 text-sm leading-7 text-muted-foreground">{enhancedCharacter.storyArc}</p>
+          <EditableText
+            as="p"
+            multiline
+            contentKey={fieldKey("summary")}
+            value={enhancedCharacter.summary}
+            className="mt-4 block text-sm leading-7 text-muted-foreground"
+          />
+          <EditableText
+            as="p"
+            multiline
+            contentKey={fieldKey("storyArc")}
+            value={enhancedCharacter.storyArc}
+            className="mt-3 block text-sm leading-7 text-muted-foreground"
+          />
         </GlassCard>
       </section>
 

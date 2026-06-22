@@ -3,9 +3,13 @@ import { BookOpen, Compass, MailPlus, ShoppingBag, Sparkles } from "lucide-react
 import { Badge } from "@/components/common/badge";
 import { DivineButton } from "@/components/common/divine-button";
 import { GlassCard } from "@/components/common/glass-card";
+import { EditableText } from "@/components/dev/editable-text";
 import { MotionReveal } from "@/components/site/motion-reveal";
+import { getContentOverrides, resolveText } from "@/lib/site-content/content-overrides";
 
-export function HeroSection() {
+export async function HeroSection() {
+  const overrides = await getContentOverrides();
+
   return (
     <section className="relative isolate min-h-[calc(100svh-4rem)] overflow-hidden">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_35%,rgba(217,180,95,0.18),transparent_22rem),linear-gradient(120deg,rgba(8,8,20,0.88),rgba(109,77,255,0.20)_45%,rgba(26,16,46,0.76))]" />
@@ -17,18 +21,34 @@ export function HeroSection() {
           <MotionReveal>
             <div className="mx-auto max-w-4xl lg:mx-0">
               <Badge tone="gold" className="mx-auto lg:mx-0">
-                七界宇宙官方入口
+                <EditableText
+                  contentKey="home.hero.eyebrow"
+                  value={resolveText(overrides, "home.hero.eyebrow", "七界宇宙官方入口")}
+                />
               </Badge>
-              <h1 className="mt-6 text-balance font-serif text-4xl font-semibold leading-tight text-platinum sm:text-6xl lg:text-7xl">
-                《神權崩壞：誰是最後的天命之子》
-              </h1>
-              <p className="mx-auto mt-6 max-w-2xl text-balance text-base leading-8 text-muted-foreground sm:text-lg lg:mx-0">
-                當神權崩壞，誰才是最後被命運選中的天命之子？
-              </p>
-              <p className="mx-auto mt-4 max-w-3xl text-sm leading-7 text-platinum/78 sm:text-base lg:mx-0">
-                天古三大上神沉默，三殿九尊互相審判，七界王座開始鬆動。
-                凡界、星界、神界與深淵之間，一道被封印的名字正重新發光。
-              </p>
+              <EditableText
+                as="h1"
+                contentKey="home.hero.title"
+                value={resolveText(overrides, "home.hero.title", "《神權崩壞：誰是最後的天命之子》")}
+                className="mt-6 block text-balance font-serif text-4xl font-semibold leading-tight text-platinum sm:text-6xl lg:text-7xl"
+              />
+              <EditableText
+                as="p"
+                contentKey="home.hero.tagline"
+                value={resolveText(overrides, "home.hero.tagline", "當神權崩壞，誰才是最後被命運選中的天命之子？")}
+                className="mx-auto mt-6 block max-w-2xl text-balance text-base leading-8 text-muted-foreground sm:text-lg lg:mx-0"
+              />
+              <EditableText
+                as="p"
+                multiline
+                contentKey="home.hero.description"
+                value={resolveText(
+                  overrides,
+                  "home.hero.description",
+                  "天古三大上神沉默，三殿九尊互相審判，七界王座開始鬆動。凡界、星界、神界與深淵之間，一道被封印的名字正重新發光。",
+                )}
+                className="mx-auto mt-4 block max-w-3xl text-sm leading-7 text-platinum/78 sm:text-base lg:mx-0"
+              />
               <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row sm:flex-wrap lg:justify-start">
                 <DivineButton href="/novel">
                   <BookOpen className="size-5" aria-hidden="true" />

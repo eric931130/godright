@@ -26,6 +26,8 @@ import {
 import { Badge } from "@/components/common/badge";
 import { DivineButton } from "@/components/common/divine-button";
 import { GlassCard } from "@/components/common/glass-card";
+import { EditableText } from "@/components/dev/editable-text";
+import { EditableParagraphs } from "@/components/dev/editable-paragraphs";
 import { siteConfig } from "@/config/site";
 import type { Chapter } from "@/data/novel";
 import { useFavorites } from "@/lib/account/storage";
@@ -131,9 +133,12 @@ export function ChapterReader({ chapter, previous, next, lockInfo }: ChapterRead
             <span className="text-sm text-muted-foreground">{chapter.volume}</span>
           </div>
 
-          <h1 className="font-serif text-3xl font-semibold leading-tight text-platinum sm:text-5xl">
-            {chapter.title}
-          </h1>
+          <EditableText
+            as="h1"
+            contentKey={`chapter.${chapter.id}.title`}
+            value={chapter.title}
+            className="block font-serif text-3xl font-semibold leading-tight text-platinum sm:text-5xl"
+          />
           <p className="mt-5 text-base leading-8 text-muted-foreground">
             {chapter.excerpt}
           </p>
@@ -214,11 +219,12 @@ export function ChapterReader({ chapter, previous, next, lockInfo }: ChapterRead
               )}
               style={readerStyle}
             >
-              {chapter.content.map((paragraph) => (
-                <p key={paragraph} className="mb-7">
-                  {paragraph}
-                </p>
-              ))}
+              <EditableParagraphs
+                contentKey={`chapter.${chapter.id}.content`}
+                paragraphs={chapter.content}
+                editable={chapter.isFree}
+                paragraphClassName="mb-7"
+              />
               <footer
                 className={cn(
                   "mt-10 rounded-lg border p-4 text-sm",

@@ -3,10 +3,11 @@ import { BookMarked, PenLine, ScrollText } from "lucide-react";
 
 import { GlassCard } from "@/components/common/glass-card";
 import { SectionTitle } from "@/components/common/section-title";
+import { EditableText } from "@/components/dev/editable-text";
 import { chapters } from "@/data/novel";
 import type { EbookProductExtra } from "@/data/shop";
 
-export function EbookPreview({ ebook }: { ebook: EbookProductExtra }) {
+export function EbookPreview({ ebook, slug }: { ebook: EbookProductExtra; slug: string }) {
   const previewChapters = (ebook.previewChapterIds ?? [])
     .map((id) => chapters.find((chapter) => chapter.id === id))
     .filter((chapter): chapter is NonNullable<typeof chapter> => Boolean(chapter));
@@ -19,14 +20,26 @@ export function EbookPreview({ ebook }: { ebook: EbookProductExtra }) {
             <PenLine className="size-5 text-divine-gold" aria-hidden="true" />
             作者序
           </h2>
-          <p className="mt-4 text-sm leading-8 text-muted-foreground">{ebook.authorPreface}</p>
+          <EditableText
+            as="p"
+            multiline
+            contentKey={`product.${slug}.ebook.authorPreface`}
+            value={ebook.authorPreface}
+            className="mt-4 block text-sm leading-8 text-muted-foreground"
+          />
         </GlassCard>
       ) : null}
 
       {ebook.introduction ? (
         <GlassCard className="p-6">
           <h2 className="font-serif text-2xl font-semibold text-platinum">內容介紹</h2>
-          <p className="mt-4 text-sm leading-8 text-muted-foreground">{ebook.introduction}</p>
+          <EditableText
+            as="p"
+            multiline
+            contentKey={`product.${slug}.ebook.introduction`}
+            value={ebook.introduction}
+            className="mt-4 block text-sm leading-8 text-muted-foreground"
+          />
         </GlassCard>
       ) : null}
 

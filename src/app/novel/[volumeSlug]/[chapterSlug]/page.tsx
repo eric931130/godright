@@ -6,8 +6,11 @@ import { ChapterReader } from "@/components/novel/chapter-reader";
 import { JsonLd } from "@/components/seo/json-ld";
 import { getCharacter } from "@/data/characters";
 import { chapters, getAdjacentChapters, getChapter } from "@/data/novel";
+import { getContentOverrides, resolveText } from "@/lib/site-content/content-overrides";
 import { absoluteUrl, createPageMetadata } from "@/lib/seo";
 import { isValidSlug } from "@/lib/validation";
+
+export const revalidate = 60;
 
 type ChapterPageProps = {
   params: Promise<{
@@ -64,8 +67,19 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
   }
 
   const { previous, next } = getAdjacentChapters(chapter.id);
+
+  // 套用站台內容覆蓋：標題（不敏感）對所有章節生效；內文僅免費章節可覆蓋。
+  const overrides = await getContentOverrides();
+  const mergedTitle = resolveText(overrides, `chapter.${chapter.id}.title`, chapter.title);
+  const contentOverride = overrides[`chapter.${chapter.id}.content`]?.text;
+  const parsedContent = contentOverride
+    ? contentOverride.split(/\n\s*\n/).map((part) => part.trim()).filter(Boolean)
+    : [];
+  const mergedContent = chapter.isFree && parsedContent.length ? parsedContent : chapter.content;
+  const baseChapter = { ...chapter, title: mergedTitle, content: mergedContent };
+
   // 付費章節在 server 端清空正文，僅保留 excerpt/previewText 等安全短欄位。
-  const safeChapter = chapter.isFree ? chapter : { ...chapter, content: [] };
+  const safeChapter = chapter.isFree ? baseChapter : { ...baseChapter, content: [] };
   const lockInfo = chapter.isFree
     ? undefined
     : {

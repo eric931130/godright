@@ -24,6 +24,7 @@ import {
 
 import { DivineButton } from "@/components/common/divine-button";
 import { GlassCard } from "@/components/common/glass-card";
+import { siteConfig } from "@/config/site";
 import { getAdminSecondFactorSession } from "@/lib/auth/verify-admin-session";
 import { cn } from "@/lib/utils";
 
@@ -112,7 +113,9 @@ export async function AdminShell({ title, description, children, actions }: Admi
         <section className="min-w-0 space-y-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-sm uppercase tracking-[0.28em] text-divine-gold">Godright Admin</p>
+              <p className="text-sm uppercase tracking-[0.28em] text-divine-gold">
+                {siteConfig.studioName} Admin
+              </p>
               <h1 className="mt-2 text-3xl font-semibold text-platinum sm:text-4xl">{title}</h1>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-muted-foreground">{description}</p>
             </div>

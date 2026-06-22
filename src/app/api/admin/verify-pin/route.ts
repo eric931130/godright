@@ -16,14 +16,19 @@ const pinSchema = z.object({
   pin: z.string().regex(/^\d{4,12}$/, "PIN must be 4 to 12 digits."),
 });
 
-const secureCookie = {
-  httpOnly: true,
-  sameSite: "lax" as const,
-  secure: process.env.NODE_ENV === "production",
-  path: "/",
-};
+function getCookieOptions(request: NextRequest) {
+  const forwardedProto = request.headers.get("x-forwarded-proto");
+
+  return {
+    httpOnly: true,
+    sameSite: "lax" as const,
+    secure: request.nextUrl.protocol === "https:" || forwardedProto === "https",
+    path: "/",
+  };
+}
 
 export async function POST(request: NextRequest) {
+  const cookieOptions = getCookieOptions(request);
   const token = getBearerToken(request.headers);
   if (!token) {
     return NextResponse.json({ error: "Missing Authorization Bearer token." }, { status: 401 });
@@ -62,13 +67,13 @@ export async function POST(request: NextRequest) {
 
     if (attempts >= 5) {
       response.cookies.set(adminLockCookie, String(Date.now() + 1000 * 60 * 10), {
-        ...secureCookie,
+        ...cookieOptions,
         maxAge: 60 * 10,
       });
       response.cookies.delete(adminAttemptCookie);
     } else {
       response.cookies.set(adminAttemptCookie, String(attempts), {
-        ...secureCookie,
+        ...cookieOptions,
         maxAge: 60 * 10,
       });
     }
@@ -88,13 +93,13 @@ export async function POST(request: NextRequest) {
 
   if (nextStep >= 3) {
     response.cookies.set(adminSecondFactorCookie, createVerifiedAdminCookie(admin.uid), {
-      ...secureCookie,
+      ...cookieOptions,
       maxAge: 60 * 60 * 8,
     });
     response.cookies.delete(adminStepCookie);
   } else {
     response.cookies.set(adminStepCookie, String(nextStep), {
-      ...secureCookie,
+      ...cookieOptions,
       maxAge: 60 * 10,
     });
   }

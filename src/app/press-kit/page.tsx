@@ -50,7 +50,9 @@ export default function PressKitPage() {
         </GlassCard>
         <GlassCard className="p-6">
           <Badge tone="purple">作者簡介</Badge>
-          <h2 className="mt-4 font-serif text-2xl font-semibold text-platinum">Godright IP Studio</h2>
+          <h2 className="mt-4 font-serif text-2xl font-semibold text-platinum">
+            {siteConfig.studioName}
+          </h2>
           <p className="mt-3 text-sm leading-8 text-muted-foreground">
             專注於東方神權幻想 IP 的原創工作室，致力於以小說、設定集、視覺與周邊建構可長期經營的七界宇宙，
             並透過數位平台與讀者共同擴張故事邊界。
@@ -93,7 +95,7 @@ export default function PressKitPage() {
         <GlassCard className="p-6">
           <h2 className="font-serif text-2xl font-semibold text-platinum">授權聲明與聯絡</h2>
           <p className="mt-4 text-sm leading-8 text-muted-foreground">
-            本網站所有文字、角色、世界觀與視覺素材之著作權均屬 Godright IP Studio 所有。
+            本網站所有文字、角色、世界觀與視覺素材之著作權均屬 {siteConfig.studioName} 所有。
             未經授權不得轉載、改作、商業使用或用於模型訓練。媒體採訪與授權合作請來信洽詢。
           </p>
           <div className="mt-5 flex flex-wrap gap-3">

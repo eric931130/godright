@@ -25,7 +25,7 @@ export function Footer() {
               </span>
               <span className="flex items-center gap-2">
                 <MapPin className="size-4 text-divine-gold" aria-hidden="true" />
-                Godright IP Studio / 七界宇宙企劃室
+                {siteConfig.studioName}
               </span>
             </div>
           </div>
@@ -63,7 +63,7 @@ export function Footer() {
         <Separator className="my-8 bg-divine-gold/16" />
 
         <div className="flex flex-col gap-4 text-xs text-muted-foreground md:flex-row md:items-center md:justify-between">
-          <p>© 2026 Godright IP Studio. All rights reserved.</p>
+          <p>© 2026 {siteConfig.studioName}. All rights reserved.</p>
           <div className="flex flex-wrap gap-4">
             {siteConfig.footerLinks.map((item) => (
               <Link

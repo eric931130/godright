@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { UserPlus } from "lucide-react";
 
+import { RegistrationLoadingView } from "@/components/auth/registration-loading-view";
 import { Badge } from "@/components/common/badge";
 import { GlassCard } from "@/components/common/glass-card";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,27 @@ export default function RegisterPage() {
   const [subscribe, setSubscribe] = useState(true);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    if (!isCompleting) return;
+
+    const startedAt = Date.now();
+    const duration = 2400;
+    const intervalId = window.setInterval(() => {
+      const elapsed = Date.now() - startedAt;
+      const nextProgress = Math.min(100, Math.round((elapsed / duration) * 100));
+
+      setProgress(nextProgress);
+      if (nextProgress >= 100) {
+        window.clearInterval(intervalId);
+        router.push("/account/profile");
+      }
+    }, 80);
+
+    return () => window.clearInterval(intervalId);
+  }, [isCompleting, router]);
 
   async function handleRegister(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -52,12 +74,17 @@ export default function RegisterPage() {
         body: JSON.stringify({ displayName, subscribe }),
       });
 
-      router.push("/account/profile");
+      setProgress(10);
+      setIsCompleting(true);
     } catch {
       setError("註冊失敗，請確認 Email 格式或密碼強度。");
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  if (isCompleting) {
+    return <RegistrationLoadingView progress={progress} />;
   }
 
   return (
@@ -138,7 +165,7 @@ export default function RegisterPage() {
             disabled={isSubmitting}
             type="submit"
           >
-            <UserPlus className="size-4" />
+            <UserPlus data-icon="inline-start" />
             建立帳號
           </Button>
         </form>

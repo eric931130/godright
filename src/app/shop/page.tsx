@@ -6,9 +6,16 @@ import { DivineButton } from "@/components/common/divine-button";
 import { GlassCard } from "@/components/common/glass-card";
 import { SectionTitle } from "@/components/common/section-title";
 import { ShopProductCard } from "@/components/shop/shop-product-card";
+import { EditableImage } from "@/components/dev/editable-image";
 import { featuredProducts, productCategories, shopProducts } from "@/data/shop";
+import { getContentOverrides, resolveImage } from "@/lib/site-content/content-overrides";
 
-export default function ShopPage() {
+// ISR：定期重讀站台內容覆蓋，讓 GM 編輯結果於 60 秒內生效。
+export const revalidate = 60;
+
+export default async function ShopPage() {
+  const overrides = await getContentOverrides();
+
   return (
     <div className="site-container py-10 sm:py-14">
       <GlassCard className="overflow-hidden p-0">
@@ -41,10 +48,15 @@ export default function ShopPage() {
               </DivineButton>
             </div>
           </div>
-          <div className="image-placeholder relative min-h-72">
+          <EditableImage
+            contentKey="shop.hero.banner"
+            value={resolveImage(overrides, "shop.hero.banner")}
+            className="min-h-72"
+            alt="商城主視覺"
+          >
             <div className="seal-ring animate-orbit absolute inset-10 opacity-70" />
             <Sparkles className="absolute bottom-8 right-8 size-10 text-divine-gold" />
-          </div>
+          </EditableImage>
         </div>
       </GlassCard>
 

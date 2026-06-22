@@ -12,6 +12,9 @@ export const metadata: Metadata = createPageMetadata({
   keywords: ["官方網站", "小說閱讀平台", "電子書商城", "高級動漫 IP 官網"],
 });
 
+// ISR：定期重讀站台內容覆蓋（siteContent），讓 GM 編輯結果於 60 秒內生效。
+export const revalidate = 60;
+
 export default function Page() {
   return (
     <>
@@ -26,7 +29,7 @@ export default function Page() {
           inLanguage: "zh-Hant",
           publisher: {
             "@type": "Organization",
-            name: "Godright IP Studio",
+            name: siteConfig.studioName,
           },
         }}
       />

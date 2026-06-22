@@ -2,16 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, Crown, LogIn, Menu, UserPlus, X } from "lucide-react";
+import { BookOpen, Crown, LogIn, Menu, X } from "lucide-react";
 import { useState } from "react";
 
 import { DivineButton } from "@/components/common/divine-button";
+import { useAuthModal } from "@/components/auth/auth-modal-provider";
 import { buttonVariants } from "@/components/ui/button";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 
 export function Header() {
   const pathname = usePathname();
+  const { openAuthModal } = useAuthModal();
   const [open, setOpen] = useState(false);
 
   const isActive = (href: string) =>
@@ -62,14 +64,14 @@ export function Header() {
             <BookOpen aria-hidden="true" className="size-4" />
             開始閱讀
           </DivineButton>
-          <DivineButton className="h-9" href="/login" variant="ghost">
+          <button
+            type="button"
+            onClick={() => openAuthModal("login")}
+            className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-divine-gold px-4 text-sm font-medium text-deep-space transition hover:bg-platinum"
+          >
             <LogIn aria-hidden="true" className="size-4" />
-            登入
-          </DivineButton>
-          <DivineButton className="h-9" href="/register">
-            <UserPlus aria-hidden="true" className="size-4" />
-            免費註冊
-          </DivineButton>
+            登入會員
+          </button>
         </div>
 
         <button
@@ -118,14 +120,17 @@ export function Header() {
             ))}
           </div>
           <div className="mt-4 grid gap-2 border-t border-divine-gold/15 pt-4">
-            <DivineButton className="w-full justify-center" href="/login" variant="outline">
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                openAuthModal("login");
+              }}
+              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-divine-gold px-4 text-sm font-medium text-deep-space transition hover:bg-platinum"
+            >
               <LogIn aria-hidden="true" className="size-4" />
-              登入
-            </DivineButton>
-            <DivineButton className="w-full justify-center" href="/register">
-              <UserPlus aria-hidden="true" className="size-4" />
-              免費註冊
-            </DivineButton>
+              登入會員
+            </button>
           </div>
         </nav>
       </div>

@@ -226,3 +226,13 @@
     transform: scale(1.03);
   }
 }
+
+@keyframes traveler-shimmer {
+  0% {
+    background-position: 220% 0;
+  }
+
+  100% {
+    background-position: -120% 0;
+  }
+}

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Badge } from "@/components/common/badge";
 import { GlassCard } from "@/components/common/glass-card";
 import { SectionTitle } from "@/components/common/section-title";
+import { DevModePanel } from "@/components/dev/dev-mode-panel";
 import { characters } from "@/data/characters";
 import { userBadges } from "@/data/account";
 import { createPageMetadata } from "@/lib/seo";
@@ -20,7 +21,10 @@ export default function AccountProfilePage() {
   return (
     <main className="site-container py-10 sm:py-14">
       <SectionTitle eyebrow="Profile" title="個人資訊中心" description="正式版會由 Firebase Auth 與 Firestore users profile 回填。" />
-      <div className="mt-8 grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+      <div className="mt-8">
+        <DevModePanel />
+      </div>
+      <div className="mt-6 grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
         <GlassCard className="p-6">
           <div className="image-placeholder mx-auto aspect-square max-w-40 rounded-lg" />
           <h1 className="mt-5 text-center text-2xl font-semibold text-platinum">星命觀測者</h1>

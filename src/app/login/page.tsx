@@ -87,9 +87,11 @@ export default function LoginPage() {
     <div className="site-container flex min-h-[calc(100svh-4rem)] items-center py-16">
       <GlassCard className="mx-auto w-full max-w-lg p-6 sm:p-8">
         <Badge>Firebase Auth</Badge>
-        <h1 className="mt-4 font-serif text-4xl text-platinum">登入神權帳號</h1>
+        <h1 className="mt-4 font-serif text-3xl leading-tight text-platinum sm:text-4xl">
+          登入帳號成為探索何謂天命之子旅程的旅客，尋找打造和平真相的一份子
+        </h1>
         <p className="mt-3 text-sm leading-7 text-muted-foreground">
-          登入後可管理書架、收藏角色、追蹤閱讀進度。開發者帳號登入後會進入三次封印驗證。
+          開發者帳號登入後會進入三次封印驗證。
         </p>
 
         <form className="mt-6 grid gap-4" onSubmit={handleEmailLogin}>
@@ -129,7 +131,7 @@ export default function LoginPage() {
             disabled={isSubmitting}
             type="submit"
           >
-            <KeyRound className="size-4" />
+            <KeyRound data-icon="inline-start" />
             登入
           </Button>
         </form>

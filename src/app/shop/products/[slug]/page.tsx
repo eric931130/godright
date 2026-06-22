@@ -17,10 +17,14 @@ import { EbookBonusList } from "@/components/shop/ebook-bonus-list";
 import { EbookFAQ } from "@/components/shop/ebook-faq";
 import { RelatedBundle } from "@/components/shop/related-bundle";
 import { ProductBundleRecommendations } from "@/components/shop/product-bundle-recommendations";
+import { EditableText } from "@/components/dev/editable-text";
 import { JsonLd } from "@/components/seo/json-ld";
 import { formatPrice, getProduct, shopProducts } from "@/data/shop";
+import { getContentOverrides, resolveText } from "@/lib/site-content/content-overrides";
 import { absoluteUrl, createPageMetadata } from "@/lib/seo";
 import { isValidSlug } from "@/lib/validation";
+
+export const revalidate = 60;
 
 type ProductPageProps = {
   params: Promise<{ slug: string }>;
@@ -73,6 +77,21 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const ebook = product.ebook;
   const isEbook = product.type === "ebook" && Boolean(ebook);
 
+  const overrides = await getContentOverrides();
+  const pkey = (field: string) => `product.${product.slug}.${field}`;
+  const heroTitle = resolveText(overrides, pkey("title"), product.title);
+  const heroSubtitle = resolveText(overrides, pkey("subtitle"), product.subtitle);
+  const heroDescription = resolveText(overrides, pkey("description"), product.description);
+  const mergedEbook = ebook
+    ? {
+        ...ebook,
+        tagline: resolveText(overrides, pkey("ebook.tagline"), ebook.tagline ?? ""),
+        authorPreface: resolveText(overrides, pkey("ebook.authorPreface"), ebook.authorPreface ?? ""),
+        introduction: resolveText(overrides, pkey("ebook.introduction"), ebook.introduction ?? ""),
+      }
+    : undefined;
+  const mergedProduct = { ...product, title: heroTitle, subtitle: heroSubtitle, description: heroDescription, ebook: mergedEbook };
+
   const recommendations = shopProducts
     .filter((item) => item.id !== product.id && item.category === product.category)
     .slice(0, 3);
@@ -102,8 +121,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
           },
         }}
       />
-      {isEbook && ebook ? (
-        <EbookHero product={product} />
+      {isEbook && mergedEbook ? (
+        <EbookHero product={mergedProduct} />
       ) : (
       <section className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
         <GlassCard className="overflow-hidden p-0">
@@ -126,12 +145,19 @@ export default async function ProductPage({ params }: ProductPageProps) {
             {product.isDigital ? <Badge tone="blue">數位下載</Badge> : null}
             {product.isFeatured ? <Badge tone="purple">精選</Badge> : null}
           </div>
-          <h1 className="mt-5 font-serif text-4xl font-semibold leading-tight text-platinum sm:text-5xl">
-            {product.title}
-          </h1>
-          <p className="mt-4 text-lg leading-8 text-muted-foreground">
-            {product.subtitle}
-          </p>
+          <EditableText
+            as="h1"
+            contentKey={pkey("title")}
+            value={heroTitle}
+            className="mt-5 block font-serif text-4xl font-semibold leading-tight text-platinum sm:text-5xl"
+          />
+          <EditableText
+            as="p"
+            multiline
+            contentKey={pkey("subtitle")}
+            value={heroSubtitle}
+            className="mt-4 block text-lg leading-8 text-muted-foreground"
+          />
           <div className="mt-6 flex flex-wrap items-end gap-3">
             <span className="font-serif text-3xl font-semibold text-divine-gold">
               {formatPrice(product)}
@@ -142,9 +168,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
               </span>
             ) : null}
           </div>
-          <p className="mt-6 text-base leading-8 text-muted-foreground">
-            {product.description}
-          </p>
+          <EditableText
+            as="p"
+            multiline
+            contentKey={pkey("description")}
+            value={heroDescription}
+            className="mt-6 block text-base leading-8 text-muted-foreground"
+          />
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
             <AddToCartButton productId={product.id} className="h-11" />
             <DivineButton href="/checkout" variant="outline">
@@ -162,14 +192,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
       </section>
       )}
 
-      {isEbook && ebook ? (
+      {isEbook && mergedEbook ? (
         <>
-          <EbookPreview ebook={ebook} />
+          <EbookPreview ebook={mergedEbook} slug={product.slug} />
           <section className="pb-4">
-            <EbookBonusList ebook={ebook} />
+            <EbookBonusList ebook={mergedEbook} />
           </section>
-          <RelatedBundle ebook={ebook} />
-          <EbookFAQ ebook={ebook} />
+          <RelatedBundle ebook={mergedEbook} />
+          <EbookFAQ ebook={mergedEbook} />
         </>
       ) : null}
 

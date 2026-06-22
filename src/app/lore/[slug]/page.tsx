@@ -5,6 +5,7 @@ import { Badge } from "@/components/common/badge";
 import { DivineButton } from "@/components/common/divine-button";
 import { GlassCard } from "@/components/common/glass-card";
 import { JsonLd } from "@/components/seo/json-ld";
+import { siteConfig } from "@/config/site";
 import { getLoreEntry, loreEntries } from "@/data/lore";
 import { absoluteUrl, createPageMetadata } from "@/lib/seo";
 import { isValidSlug } from "@/lib/validation";
@@ -70,7 +71,7 @@ export default async function LoreDetailPage({ params }: LoreDetailPageProps) {
           inLanguage: "zh-Hant",
           publisher: {
             "@type": "Organization",
-            name: "Godright IP Studio",
+            name: siteConfig.studioName,
           },
         }}
       />
