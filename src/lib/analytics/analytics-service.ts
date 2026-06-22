@@ -431,3 +431,75 @@ export async function getProductAnalytics(range: AnalyticsRange): Promise<Produc
     },
   };
 }
+
+// === 客群分析（依 users 的性別 / 生辰） ===
+
+const AGE_BUCKET_ORDER = ["未滿 18", "18–24", "25–34", "35–44", "45+", "未提供"];
+
+function ageBucketLabel(birthdate?: string): string {
+  if (!birthdate || birthdate.length < 4) return "未提供";
+  const year = Number(birthdate.slice(0, 4));
+  if (!year) return "未提供";
+  const age = new Date().getFullYear() - year;
+  if (age < 18) return "未滿 18";
+  if (age <= 24) return "18–24";
+  if (age <= 34) return "25–34";
+  if (age <= 44) return "35–44";
+  return "45+";
+}
+
+export type Demographics = {
+  configured: boolean;
+  total: number;
+  onboarded: number;
+  gender: Record<string, number>;
+  ageBuckets: { label: string; count: number }[];
+};
+
+const GENDER_LABELS: Record<string, string> = {
+  male: "男",
+  female: "女",
+  other: "其他",
+  undisclosed: "不願透露",
+  unknown: "未填",
+};
+
+export async function getDemographics(): Promise<Demographics> {
+  let db: Firestore;
+  try {
+    db = getAdminDb();
+  } catch {
+    return { configured: false, total: 0, onboarded: 0, gender: {}, ageBuckets: [] };
+  }
+
+  try {
+    const snapshot = await db.collection("users").limit(5000).get();
+    const gender: Record<string, number> = {};
+    const ages = new Map<string, number>();
+    let onboarded = 0;
+
+    for (const doc of snapshot.docs) {
+      const data = doc.data();
+      if (data.onboarded === true) onboarded += 1;
+      const g = typeof data.gender === "string" && GENDER_LABELS[data.gender] ? data.gender : "unknown";
+      gender[g] = (gender[g] ?? 0) + 1;
+      const bucket = ageBucketLabel(typeof data.birthdate === "string" ? data.birthdate : undefined);
+      ages.set(bucket, (ages.get(bucket) ?? 0) + 1);
+    }
+
+    return {
+      configured: true,
+      total: snapshot.size,
+      onboarded,
+      gender,
+      ageBuckets: AGE_BUCKET_ORDER.filter((label) => ages.has(label)).map((label) => ({
+        label,
+        count: ages.get(label) ?? 0,
+      })),
+    };
+  } catch {
+    return { configured: false, total: 0, onboarded: 0, gender: {}, ageBuckets: [] };
+  }
+}
+
+export const genderLabel = (key: string) => GENDER_LABELS[key] ?? key;

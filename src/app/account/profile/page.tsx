@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Badge } from "@/components/common/badge";
 import { GlassCard } from "@/components/common/glass-card";
 import { SectionTitle } from "@/components/common/section-title";
+import { AvatarUpload } from "@/components/account/avatar-upload";
 import { DevModePanel } from "@/components/dev/dev-mode-panel";
 import { characters } from "@/data/characters";
 import { userBadges } from "@/data/account";
@@ -26,7 +27,7 @@ export default function AccountProfilePage() {
       </div>
       <div className="mt-6 grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
         <GlassCard className="p-6">
-          <div className="image-placeholder mx-auto aspect-square max-w-40 rounded-lg" />
+          <AvatarUpload />
           <h1 className="mt-5 text-center text-2xl font-semibold text-platinum">星命觀測者</h1>
           <p className="mt-2 text-center text-sm text-muted-foreground">reader@example.com</p>
           <div className="mt-5 grid gap-3 text-sm">

@@ -2,12 +2,17 @@ import type { UserRole } from "@/lib/auth/roles";
 
 export type TimestampLike = Date | { seconds: number; nanoseconds: number };
 
+export type Gender = "male" | "female" | "other" | "undisclosed";
+
 export type UserProfile = {
   firebaseUid: string;
   publicUid: string;
   email: string;
   displayName: string;
   avatarUrl?: string;
+  birthdate?: string;
+  gender?: Gender;
+  onboarded?: boolean;
   role: Exclude<UserRole, "guest">;
   createdAt: TimestampLike;
   updatedAt: TimestampLike;

@@ -14,7 +14,7 @@ import {
 import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminStatCard } from "@/components/admin/admin-stat-card";
 import { GlassCard } from "@/components/common/glass-card";
-import { getDashboardData, type TopItem } from "@/lib/analytics/analytics-service";
+import { getDashboardData, getDemographics, genderLabel, type TopItem } from "@/lib/analytics/analytics-service";
 
 export const dynamic = "force-dynamic";
 
@@ -52,6 +52,7 @@ function TopList({ title, items, emptyHint }: { title: string; items: TopItem[];
 
 export default async function AdminAnalyticsPage() {
   const data = await getDashboardData();
+  const demographics = await getDemographics();
 
   return (
     <AdminShell
@@ -109,6 +110,48 @@ export default async function AdminAnalyticsPage() {
         <TopList title="最熱門商品" items={data.topProducts} emptyHint="尚無商品瀏覽事件。" />
         <TopList title="最常點擊名詞註解" items={data.topGlossary} emptyHint="尚無名詞註解點擊事件。" />
       </div>
+
+      <section className="space-y-3">
+        <p className="text-xs uppercase tracking-[0.24em] text-divine-gold">客群分析</p>
+        {!demographics.configured ? (
+          <GlassCard className="border-divine-gold/30 p-5">
+            <p className="text-sm leading-7 text-muted-foreground">尚未連接會員資料庫，無法統計客群。</p>
+          </GlassCard>
+        ) : (
+          <div className="grid gap-6 lg:grid-cols-3">
+            <div className="grid gap-4">
+              <AdminStatCard icon={<Users className="size-5" />} label="會員總數" value={demographics.total} detail="users 文件數" />
+              <AdminStatCard icon={<CheckCircle2 className="size-5" />} label="已完成入會" value={demographics.onboarded} detail="填寫旅者資料" />
+            </div>
+            <GlassCard className="p-5">
+              <h2 className="text-lg font-semibold text-platinum">性別分佈</h2>
+              <div className="mt-4 grid gap-2">
+                {Object.entries(demographics.gender).map(([key, count]) => (
+                  <div key={key} className="flex items-center justify-between rounded-lg border border-divine-gold/15 bg-platinum/5 px-4 py-2.5 text-sm">
+                    <span className="text-muted-foreground">{genderLabel(key)}</span>
+                    <span className="font-semibold text-platinum">{count}</span>
+                  </div>
+                ))}
+              </div>
+            </GlassCard>
+            <GlassCard className="p-5">
+              <h2 className="text-lg font-semibold text-platinum">年齡層</h2>
+              <div className="mt-4 grid gap-2">
+                {demographics.ageBuckets.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">尚無生辰資料。</p>
+                ) : (
+                  demographics.ageBuckets.map((bucket) => (
+                    <div key={bucket.label} className="flex items-center justify-between rounded-lg border border-divine-gold/15 bg-platinum/5 px-4 py-2.5 text-sm">
+                      <span className="text-muted-foreground">{bucket.label}</span>
+                      <span className="font-semibold text-platinum">{bucket.count}</span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </GlassCard>
+          </div>
+        )}
+      </section>
     </AdminShell>
   );
 }

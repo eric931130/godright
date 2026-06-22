@@ -38,7 +38,7 @@ export default function RegisterPage() {
       setProgress(nextProgress);
       if (nextProgress >= 100) {
         window.clearInterval(intervalId);
-        router.push("/account/profile");
+        router.push("/account/onboarding");
       }
     }, 80);
 

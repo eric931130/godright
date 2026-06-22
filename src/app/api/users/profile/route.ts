@@ -8,6 +8,11 @@ import { getBearerToken, verifyFirebaseIdToken } from "@/lib/firebase/admin";
 
 const profileSchema = z.object({
   displayName: z.string().trim().min(1).max(40).optional(),
+  birthdate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  gender: z.enum(["male", "female", "other", "undisclosed"]).optional(),
+  avatarUrl: z.string().url().max(1000).optional(),
+  onboarded: z.boolean().optional(),
+  subscribe: z.boolean().optional(),
 });
 
 export async function GET(request: NextRequest) {
@@ -38,6 +43,10 @@ export async function POST(request: NextRequest) {
     firebaseUid: decoded.uid,
     email: decoded.email ?? "",
     displayName: body.data.displayName || decoded.name || decoded.email?.split("@")[0] || "七界旅人",
+    birthdate: body.data.birthdate,
+    gender: body.data.gender,
+    avatarUrl: body.data.avatarUrl,
+    onboarded: body.data.onboarded,
     role:
       decoded.admin === true && isConfiguredAdminIdentity({ uid: decoded.uid, email: decoded.email })
         ? "admin"

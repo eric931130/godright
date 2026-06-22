@@ -10,21 +10,34 @@ export async function createUserProfile(input: {
   firebaseUid: string;
   email: string;
   displayName?: string;
+  birthdate?: string;
+  gender?: UserProfile["gender"];
+  avatarUrl?: string;
+  onboarded?: boolean;
   role?: UserProfile["role"];
 }) {
   const db = getAdminDb();
   const userRef = db.collection("users").doc(input.firebaseUid);
   const existing = await userRef.get();
 
+  // 只合併「有提供」的欄位，避免每次登入把既有值覆蓋成空。
+  const provided: Record<string, unknown> = {};
+  if (input.displayName) provided.displayName = input.displayName;
+  if (input.birthdate) provided.birthdate = input.birthdate;
+  if (input.gender) provided.gender = input.gender;
+  if (input.avatarUrl) provided.avatarUrl = input.avatarUrl;
+  if (input.onboarded !== undefined) provided.onboarded = input.onboarded;
+
   if (existing.exists) {
     await userRef.set(
       {
+        ...provided,
         lastLoginAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
       },
       { merge: true },
     );
-    return existing.data() as UserProfile;
+    return { ...(existing.data() as UserProfile), ...provided };
   }
 
   const publicUid = await generatePublicUid();
@@ -34,6 +47,9 @@ export async function createUserProfile(input: {
     email: input.email,
     displayName: input.displayName || input.email.split("@")[0] || "七界旅人",
     role: input.role ?? "user",
+    onboarded: input.onboarded ?? false,
+    ...(input.birthdate ? { birthdate: input.birthdate } : {}),
+    ...(input.gender ? { gender: input.gender } : {}),
     createdAt: FieldValue.serverTimestamp(),
     updatedAt: FieldValue.serverTimestamp(),
     lastLoginAt: FieldValue.serverTimestamp(),

@@ -47,6 +47,20 @@ async function getLoginTarget() {
   return typeof data?.target === "string" ? data.target : "/account";
 }
 
+async function isOnboarded() {
+  try {
+    const token = await getFirebaseAuth().currentUser?.getIdToken();
+    if (!token) return false;
+    const response = await fetch("/api/users/profile", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await response.json().catch(() => null);
+    return Boolean(data?.profile?.onboarded);
+  } catch {
+    return false;
+  }
+}
+
 export function AuthModal({ open, tab, onTab, onClose }: AuthModalProps) {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -72,6 +86,16 @@ export function AuthModal({ open, tab, onTab, onClose }: AuthModalProps) {
     router.push(target);
   }
 
+  // 開發者 → 二次驗證；尚未入會 → onboarding；其餘 → 既有去向。
+  async function routeAfterLogin() {
+    const target = await getLoginTarget();
+    if (target === "/admin-verify") {
+      finish(target);
+      return;
+    }
+    finish((await isOnboarded()) ? target : "/account/onboarding");
+  }
+
   async function handleLogin(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
@@ -79,7 +103,7 @@ export function AuthModal({ open, tab, onTab, onClose }: AuthModalProps) {
     try {
       await signInWithEmailAndPassword(getFirebaseAuth(), email, password);
       await syncProfile({});
-      finish(await getLoginTarget());
+      await routeAfterLogin();
     } catch {
       setError("登入失敗，請確認 Email 與密碼是否正確。");
     } finally {
@@ -93,9 +117,10 @@ export function AuthModal({ open, tab, onTab, onClose }: AuthModalProps) {
     try {
       const result = await signInWithPopup(getFirebaseAuth(), provider);
       await syncProfile({ displayName: result.user.displayName ?? undefined });
-      finish(await getLoginTarget());
-    } catch {
-      setError("第三方登入失敗，請稍後再試。");
+      await routeAfterLogin();
+    } catch (cause) {
+      const code = (cause as { code?: string })?.code;
+      setError(code ? `第三方登入失敗：${code}` : "第三方登入失敗，請稍後再試。");
     } finally {
       setIsSubmitting(false);
     }
@@ -117,7 +142,7 @@ export function AuthModal({ open, tab, onTab, onClose }: AuthModalProps) {
       const result = await createUserWithEmailAndPassword(getFirebaseAuth(), email, password);
       await updateProfile(result.user, { displayName });
       await syncProfile({ displayName, subscribe });
-      finish("/account/profile");
+      finish("/account/onboarding");
     } catch {
       setError("註冊失敗，請確認 Email 格式或密碼強度。");
     } finally {
@@ -165,7 +190,6 @@ export function AuthModal({ open, tab, onTab, onClose }: AuthModalProps) {
                 Apple 登入
               </Button>
             </div>
-            <p className="text-center text-xs text-muted-foreground">開發者帳號登入後會進入三次封印驗證。</p>
           </form>
         ) : (
           <form className="mt-6 grid gap-4" onSubmit={handleRegister}>
