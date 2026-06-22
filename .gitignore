@@ -43,6 +43,3 @@ firebase-debug.log
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# Windows-generated lock omits Linux native optional deps (@tailwindcss/oxide → @emnapi); let App Hosting npm install resolve per-platform.
-package-lock.json
