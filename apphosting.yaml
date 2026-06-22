@@ -58,8 +58,20 @@ env:
       - BUILD
       - RUNTIME
 
-# Admin SDK 與 PIN 等機密「不」放這裡，請用 App Hosting secrets：
-#   firebase apphosting:secrets:set ADMIN_SECONDARY_PIN_SALT
-#   firebase apphosting:secrets:set ADMIN_SECONDARY_PIN_HASH
-#   firebase apphosting:secrets:set ADMIN_SESSION_SECRET
+  # 開發者後台機密（值存於 Secret Manager / App Hosting secrets，不在此檔；RUNTIME only）
+  - variable: ADMIN_FIREBASE_UID
+    secret: ADMIN_FIREBASE_UID
+  - variable: ADMIN_EMAIL
+    secret: ADMIN_EMAIL
+  - variable: ADMIN_SECONDARY_PIN_SALT
+    secret: ADMIN_SECONDARY_PIN_SALT
+  - variable: ADMIN_SECONDARY_PIN_HASH
+    secret: ADMIN_SECONDARY_PIN_HASH
+  - variable: ADMIN_SESSION_SECRET
+    secret: ADMIN_SESSION_SECRET
+  - variable: ADMIN_REQUIRE_CUSTOM_CLAIM
+    value: "false"
+    availability:
+      - RUNTIME
+
 # 伺服端 Firebase Admin 在 App Hosting 以執行身分（ADC）運作，無需 FIREBASE_PRIVATE_KEY。
