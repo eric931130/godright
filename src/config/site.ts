@@ -26,6 +26,7 @@ export const siteConfig = {
     { title: "登入", href: "/login" },
     { title: "註冊", href: "/register" },
     { title: "訂閱消息", href: "/newsletter" },
+    { title: "問卷調查", href: "/surveys" },
     { title: "IP 合作邀約", href: "/collaboration" },
     { title: "Press Kit", href: "/press-kit" },
     { title: "隱私權政策", href: "/privacy" },

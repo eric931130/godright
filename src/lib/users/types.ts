@@ -13,6 +13,8 @@ export type UserProfile = {
   birthdate?: string;
   gender?: Gender;
   onboarded?: boolean;
+  mutedUntil?: string;
+  bannedUntil?: string;
   role: Exclude<UserRole, "guest">;
   createdAt: TimestampLike;
   updatedAt: TimestampLike;

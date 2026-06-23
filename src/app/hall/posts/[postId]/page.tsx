@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 
 import { Badge } from "@/components/common/badge";
 import { GlassCard } from "@/components/common/glass-card";
+import { HallReportButton } from "@/components/hall/hall-report-button";
 import { hallCategoryLabels, hallComments, hallPosts } from "@/lib/hall/mock-data";
 
 type HallPostPageProps = {
@@ -29,13 +30,21 @@ export default async function HallPostPage({ params }: HallPostPageProps) {
           {post.authorDisplayName} · {post.authorPublicUid} · {post.createdAt}
         </p>
         <p className="mt-6 text-base leading-8 text-muted-foreground">{post.content}</p>
+        {!post.isOfficial ? (
+          <div className="mt-4">
+            <HallReportButton targetType="post" targetId={post.id} targetPublicUid={post.authorPublicUid} />
+          </div>
+        ) : null}
       </GlassCard>
 
       <section className="mt-8 grid gap-4">
         <h2 className="text-2xl font-semibold text-platinum">留言</h2>
         {comments.map((comment) => (
           <GlassCard key={comment.id} className="p-5">
-            <p className="text-sm text-divine-gold">{comment.authorDisplayName} · {comment.authorPublicUid}</p>
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm text-divine-gold">{comment.authorDisplayName} · {comment.authorPublicUid}</p>
+              <HallReportButton targetType="comment" targetId={comment.id} targetPublicUid={comment.authorPublicUid} />
+            </div>
             <p className="mt-3 text-sm leading-7 text-muted-foreground">{comment.content}</p>
           </GlassCard>
         ))}

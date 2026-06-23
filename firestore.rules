@@ -246,6 +246,16 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
+    // 問卷：公開讀啟用中問卷，admin 可寫；回應任何人可建立、僅 admin 可讀。
+    match /surveys/{surveyId} {
+      allow read: if resource.data.isActive == true || isAdmin();
+      allow write: if isAdmin();
+    }
+    match /surveyResponses/{responseId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
